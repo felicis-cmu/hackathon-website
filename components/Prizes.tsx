@@ -1,10 +1,16 @@
+'use client'
+
+import { useState } from 'react'
 import Image from 'next/image'
 import { Container } from './ui/Container'
 
 export const Prizes = () => {
+  const [selectedPrize, setSelectedPrize] = useState(0)
+
   const prizes = [
     {
       place: '1st',
+      label: 'First',
       prize: '$2,500 Cash Prize',
       image: '/images/money.jpg',
       showText: true,
@@ -12,6 +18,7 @@ export const Prizes = () => {
     },
     {
       place: '2nd',
+      label: 'Second',
       prize: 'Meta Ray Bans',
       image: '/images/ray-bans.png',
       showText: false,
@@ -19,12 +26,15 @@ export const Prizes = () => {
     },
     {
       place: '3rd',
+      label: 'Third',
       prize: 'Nintendo Switch',
       image: '/images/nintendo-swtich.gif',
       showText: false,
       isGif: true
     }
   ]
+
+  const currentPrize = prizes[selectedPrize]
 
   return (
     <section id="prizes" className="py-16 sm:py-20 bg-gray-50">
@@ -38,70 +48,75 @@ export const Prizes = () => {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
-          {prizes.map((prize, index) => (
-            <div 
-              key={index}
-              className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 md:gap-12"
-            >
-              {/* Left side - Place indicator */}
-              <div className="flex-shrink-0 w-full sm:w-32 text-center sm:text-left">
-                <div className="inline-block sm:block">
-                  <div className={`text-6xl sm:text-7xl md:text-8xl font-bold ${
-                    index === 0 ? 'text-gradient-purple' : 'text-gray-800'
-                  }`}>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+            {/* Left side - Vertical place selector */}
+            <div className="flex md:flex-col gap-4 justify-center md:justify-start">
+              {prizes.map((prize, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedPrize(index)}
+                  className={`flex-1 md:flex-none px-6 py-4 md:px-8 md:py-6 rounded-2xl font-bold text-left transition-all duration-300 ${
+                    selectedPrize === index
+                      ? 'bg-gradient-purple text-white shadow-lg scale-105'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+                  }`}
+                >
+                  <div className="text-4xl md:text-5xl mb-1">
                     {prize.place}
                   </div>
-                  <div className="text-lg sm:text-xl text-gray-600 font-semibold mt-2">
-                    Place
+                  <div className="text-sm md:text-base opacity-90">
+                    {prize.label}
                   </div>
-                </div>
-              </div>
+                </button>
+              ))}
+            </div>
 
-              {/* Right side - Prize card with image */}
-              <div className="flex-1 w-full">
-                <div className={`bg-white rounded-3xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
-                  index === 0 ? 'ring-4 ring-purple-500' : ''
-                }`}>
-                  <div className="relative aspect-[4/3] w-full bg-gray-100">
-                    {prize.isGif ? (
-                      // Use regular img tag for GIFs to preserve animation
-                      <img
-                        src={prize.image}
-                        alt={prize.prize}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Image
-                        src={prize.image}
-                        alt={prize.prize}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    )}
-                    
-                    {/* Overlay text for 1st place */}
-                    {prize.showText && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-black/50 backdrop-blur-sm px-8 py-4 rounded-2xl">
-                          <div className="text-5xl sm:text-6xl md:text-7xl font-bold text-white">
-                            $2500
-                          </div>
+            {/* Right side - Prize display card */}
+            <div className="flex-1">
+              <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div className="relative aspect-[4/3] w-full bg-gray-100">
+                  {currentPrize.isGif ? (
+                    <img
+                      src={currentPrize.image}
+                      alt={currentPrize.prize}
+                      className="w-full h-full object-cover"
+                      key={currentPrize.image}
+                    />
+                  ) : (
+                    <Image
+                      src={currentPrize.image}
+                      alt={currentPrize.prize}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      key={currentPrize.image}
+                    />
+                  )}
+                  
+                  {/* Overlay text for 1st place */}
+                  {currentPrize.showText && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-black/50 backdrop-blur-sm px-8 py-4 rounded-2xl">
+                        <div className="text-5xl sm:text-6xl md:text-7xl font-bold text-white">
+                          $2500
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="p-6 md:p-8">
+                  <div className="text-sm text-gray-500 mb-2">
+                    {currentPrize.place} Place Prize
                   </div>
-                  
-                  <div className="p-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-                      {prize.prize}
-                    </h3>
-                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    {currentPrize.prize}
+                  </h3>
                 </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
 
         <div className="mt-16 text-center">
