@@ -5,9 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Felicis Hackathon - March 14',
-  description: 'Join us for the Felicis Hackathon on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
-  keywords: ['hackathon', 'felicis', 'venture capital', 'technology', 'competition'],
+  title: 'VentureHack - March 14',
+  description: 'Join us for VentureHack on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
+  keywords: ['hackathon', 'venturehack', 'venture capital', 'technology', 'competition', 'felicis'],
 }
 
 export default function RootLayout({

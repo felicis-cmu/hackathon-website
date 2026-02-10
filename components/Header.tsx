@@ -26,8 +26,7 @@ export const Header = () => {
               priority
             />
             <div className="text-lg sm:text-2xl font-bold">
-              <span className="text-gray-900">Felicis</span>
-              <span className="text-gradient-purple"> Hackathon</span>
+              <span className="text-gradient-purple">VentureHack</span>
             </div>
           </button>
 

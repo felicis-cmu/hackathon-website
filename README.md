@@ -1,6 +1,6 @@
-# Felicis Hackathon Website
+# VentureHack Website
 
-A modern, responsive website for the Felicis Hackathon event on March 14, built with Next.js 14, TypeScript, and Tailwind CSS.
+A modern, responsive website for VentureHack on March 14, built with Next.js 14, TypeScript, and Tailwind CSS. Sponsored by Felicis Ventures.
 
 ## Features
 

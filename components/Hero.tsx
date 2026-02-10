@@ -15,8 +15,7 @@ export const Hero = () => {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 sm:gap-12">
           <div className="flex-1 space-y-6 sm:space-y-8 text-center lg:text-left">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
-              <span className="text-gray-900">Felicis </span>
-              <span className="text-gradient-purple">Hackathon</span>
+              <span className="text-gradient-purple">VentureHack</span>
             </h1>
             
             <div className="space-y-3 sm:space-y-4">
