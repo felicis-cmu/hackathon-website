@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Container } from './ui/Container'
 
 export const Header = () => {
@@ -12,12 +13,23 @@ export const Header = () => {
     <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-50 border-b border-gray-200 shadow-sm">
       <Container>
         <nav className="flex items-center justify-between py-3 sm:py-4">
-          <div className="flex items-center gap-2">
+          <button 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
+            <Image 
+              src="/logos/felicis.png"
+              alt="Felicis Logo"
+              width={40}
+              height={40}
+              className="w-8 h-8 sm:w-10 sm:h-10"
+              priority
+            />
             <div className="text-lg sm:text-2xl font-bold">
               <span className="text-gray-900">Felicis</span>
               <span className="text-gradient-purple"> Hackathon</span>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-4 sm:gap-8">
             <button 
