@@ -37,15 +37,17 @@ export const Prizes = () => {
   const currentPrize = prizes[selectedPrize]
 
   return (
-    <section id="prizes" className="py-16 sm:py-20 bg-gray-50">
+    <section id="prizes" className="py-16 sm:py-20">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Compete & Win
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 font-light">
-            Top 3 teams meet Felicis partners and take home incredible prizes
-          </p>
+          <div className="glass-context max-w-2xl mx-auto px-4 sm:px-6 py-3 sm:py-4 rounded-2xl">
+            <p className="text-base sm:text-lg text-gray-700 font-light">
+              Top 3 teams meet Felicis partners and take home incredible prizes
+            </p>
+          </div>
         </div>
 
         <div className="max-w-4xl mx-auto">
@@ -56,21 +58,13 @@ export const Prizes = () => {
                 <button
                   key={index}
                   onClick={() => setSelectedPrize(index)}
-                  className={`relative px-6 py-4 sm:px-8 sm:py-5 rounded-2xl font-bold transition-all ease-liquid duration-300 overflow-hidden ${
+                  className={`liquid-glass-pill inline-flex items-center min-w-24 justify-center px-7 py-3 text-lg sm:text-xl leading-none transition-all duration-300 focus:outline-none select-none ${
                     selectedPrize === index
-                      ? 'bg-gray-900 text-white shadow-lg scale-105'
-                      : 'text-gray-700 hover:scale-105'
+                      ? 'liquid-glass-pill-active scale-105 text-gray-900'
+                      : 'text-gray-800'
                   }`}
                 >
-                  {selectedPrize !== index && (
-                    <>
-                      <div className="absolute inset-0 bg-white/40 backdrop-blur-md"></div>
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-transparent"></div>
-                    </>
-                  )}
-                  <div className="relative text-3xl sm:text-4xl">
-                    {prize.place}
-                  </div>
+                  {prize.place}
                 </button>
               ))}
             </div>
@@ -125,20 +119,6 @@ export const Prizes = () => {
           </div>
         </div>
 
-        <div className="mt-16 text-center">
-          <div className="liquid-panel rounded-3xl p-8 sm:p-12 max-w-3xl mx-auto relative overflow-hidden">
-            {/* Neutral background overlay */}
-            <div className="absolute inset-0 bg-gray-100 opacity-90 z-0"></div>
-            <div className="relative z-10">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Success & Impact
-              </h3>
-              <p className="text-base sm:text-lg md:text-xl text-gray-700">
-                Top 3 teams meet Felicis Partners and get direct feedback on your projects
-              </p>
-            </div>
-          </div>
-        </div>
       </Container>
     </section>
   )

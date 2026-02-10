@@ -60,7 +60,7 @@ export const Schedule = () => {
                     <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gray-900 ring-4 ring-white z-10"></div>
                     
                     {/* Content */}
-                    <div className={`w-[calc(50%-2rem)] ${isLeft ? 'text-right pr-8' : 'text-left pl-8'}`}>
+                    <div className={`glass-context w-[calc(40%-1rem)] p-4 sm:p-5 ${isLeft ? 'text-right pr-6' : 'text-left pl-6'}`}>
                       <div className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                         {item.time}
                       </div>

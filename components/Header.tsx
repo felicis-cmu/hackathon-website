@@ -81,7 +81,7 @@ export const Header = () => {
             </button>
             <Link 
               href="/apply"
-              className="glass-tab bg-gray-900 hover:bg-gray-800 text-white"
+              className="glass-tab glass-tab-active"
             >
               Apply
             </Link>

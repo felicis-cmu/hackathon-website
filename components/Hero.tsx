@@ -21,7 +21,7 @@ export const Hero = () => {
           </p>
 
           {/* Main Title */}
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-gray-900 tracking-tight font-dancing leading-none">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 tracking-tight font-dancing leading-none">
             VentureHack
           </h1>
 
