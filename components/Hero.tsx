@@ -1,46 +1,42 @@
 'use client'
 
+import Link from 'next/link'
 import { Container } from './ui/Container'
-import { Button } from './ui/Button'
 
 export const Hero = () => {
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id)
-    element?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <section className="py-16 sm:py-20 md:py-32">
+    <section className="min-h-screen flex items-center justify-center py-16 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-64 h-64 bg-gray-200 opacity-30 blur-3xl rounded-full"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gray-300 opacity-20 blur-3xl rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gray-100 opacity-40 blur-3xl rounded-full"></div>
+      </div>
+
       <Container>
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 sm:gap-12">
-          <div className="flex-1 space-y-6 sm:space-y-8 text-center lg:text-left">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
-              <span className="text-gradient-purple">VentureHack</span>
-            </h1>
-            
-            <div className="space-y-3 sm:space-y-4">
-              <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800">
-                March 14
-              </p>
-              <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
-                Build iconic companies. Meet venture capital partners. 
-                Compete for amazing prizes and opportunities.
-              </p>
-            </div>
+        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8 sm:space-y-12">
+          {/* Date */}
+          <p className="text-sm sm:text-base md:text-lg font-light tracking-wide text-gray-600 uppercase">
+            March 14, 2026
+          </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button onClick={() => scrollToSection('prizes')}>
-                View Prizes
-              </Button>
-              <Button onClick={() => scrollToSection('schedule')} variant="primary">
-                See Schedule
-              </Button>
-            </div>
-          </div>
+          {/* Main Title */}
+          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-gray-900 tracking-tight font-dancing leading-none">
+            VentureHack
+          </h1>
 
-          <div className="flex-1 relative w-full max-w-md lg:max-w-none">
-            <div className="aspect-square rounded-full bg-gradient-purple opacity-20 blur-3xl"></div>
-          </div>
+          {/* Presented By */}
+          <p className="text-sm sm:text-base md:text-lg font-light tracking-wide text-gray-600">
+            Presented by <span className="font-medium">Felicis</span> & <span className="font-medium">Skild AI</span>
+          </p>
+
+          {/* Apply Button */}
+          <Link 
+            href="/apply"
+            className="glass-context px-8 sm:px-12 py-3 sm:py-4 text-sm sm:text-base font-medium tracking-wide text-gray-900 hover:scale-105 transition-all ease-liquid duration-300 mt-4 uppercase"
+          >
+            Apply now
+          </Link>
         </div>
       </Container>
     </section>

@@ -50,15 +50,16 @@ export const Schedule = () => {
         <div className="max-w-3xl mx-auto">
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-6 sm:left-8 md:left-12 top-0 bottom-0 w-0.5 bg-gradient-purple"></div>
+            <div className="absolute left-6 sm:left-8 md:left-12 top-0 bottom-0 w-0.5 bg-gray-300"></div>
             
             <div className="space-y-6 sm:space-y-8">
               {scheduleItems.map((item, index) => (
                 <div key={index} className="relative pl-16 sm:pl-20 md:pl-28">
                   {/* Timeline dot */}
-                  <div className="absolute left-3 sm:left-5 md:left-8 top-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-purple-500 ring-4 ring-purple-100"></div>
+                  <div className="absolute left-3 sm:left-5 md:left-8 top-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-900 ring-4 ring-gray-200"></div>
                   
-                  <Card className="hover:shadow-xl transition-shadow">
+                  <Card variant="glass-card" className="hover:shadow-xl hover:scale-[1.02] transition-all ease-liquid">
+                    <div className="glass-shimmer"></div>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
                       <div className="flex-1">
                         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
@@ -68,7 +69,7 @@ export const Schedule = () => {
                           {item.description}
                         </p>
                       </div>
-                      <div className="text-base sm:text-lg md:text-xl font-semibold text-gradient-purple md:text-right whitespace-nowrap">
+                      <div className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 md:text-right whitespace-nowrap">
                         {item.time}
                       </div>
                     </div>

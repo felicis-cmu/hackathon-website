@@ -16,7 +16,7 @@ export const Button: React.FC<ButtonProps> = ({
   const baseStyles = "px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base group"
   
   const variantStyles = {
-    primary: "bg-gradient-purple text-white hover:opacity-90",
+    primary: "bg-gray-900 text-white hover:bg-gray-800",
     outline: "border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white"
   }
 

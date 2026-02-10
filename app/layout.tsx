@@ -1,8 +1,18 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { IBM_Plex_Mono, Dancing_Script } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const ibmPlexMono = IBM_Plex_Mono({ 
+  subsets: ['latin'],
+  variable: '--font-ibm-plex-mono',
+  weight: ['300', '400', '500', '600', '700']
+})
+
+export const dancingScript = Dancing_Script({ 
+  subsets: ['latin'],
+  variable: '--font-dancing-script',
+  weight: ['400', '700']
+})
 
 export const metadata: Metadata = {
   title: 'VentureHack - March 14',
@@ -17,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={inter.className}>{children}</body>
+      <body className={`${ibmPlexMono.variable} ${dancingScript.variable} font-mono antialiased`}>{children}</body>
     </html>
   )
 }

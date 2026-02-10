@@ -8,19 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        'purple': {
-          500: '#7C3AED',
-          400: '#A78BFA',
-        },
-        'orange': {
-          400: '#FB923C',
-          300: '#FDBA74',
-        },
-      },
-      backgroundImage: {
-        'gradient-purple': 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)',
-        'gradient-orange': 'linear-gradient(135deg, #FB923C 0%, #FDBA74 100%)',
+      fontFamily: {
+        mono: ['var(--font-ibm-plex-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+        dancing: ['var(--font-dancing-script)', 'cursive'],
       },
     },
   },

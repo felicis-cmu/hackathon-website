@@ -24,7 +24,7 @@ export const Speakers = () => {
   ]
 
   return (
-    <section className="py-16 sm:py-20 bg-purple-50">
+    <section className="py-16 sm:py-20 bg-gray-50">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -37,7 +37,8 @@ export const Speakers = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {activities.map((activity, index) => (
-            <Card key={index} className="hover:shadow-xl transition-all hover:-translate-y-2 duration-300">
+            <Card key={index} variant="glass-card" className="hover:shadow-xl transition-all hover:-translate-y-2 ease-liquid duration-300">
+              <div className="glass-shimmer"></div>
               <div className="space-y-3 sm:space-y-4">
                 <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
                   {activity.icon}
@@ -45,7 +46,7 @@ export const Speakers = () => {
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {activity.title}
                 </h3>
-                <p className="text-base sm:text-lg font-semibold text-gradient-purple">
+                <p className="text-base sm:text-lg font-semibold text-gray-900">
                   {activity.description}
                 </p>
                 <p className="text-sm sm:text-base text-gray-600">
@@ -57,14 +58,18 @@ export const Speakers = () => {
         </div>
 
         <div className="mt-12 sm:mt-16 text-center">
-          <Card background="purple" className="max-w-3xl mx-auto">
-            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
-              Why Attend?
-            </h3>
-            <p className="text-base sm:text-lg text-gray-700">
-              This hackathon isn't just about building - it's about connecting with the venture capital ecosystem, 
-              learning what it takes to build impactful companies, and potentially finding your next co-founder or investor.
-            </p>
+          <Card variant="glass-panel" className="max-w-3xl mx-auto relative overflow-hidden">
+            {/* Neutral gradient overlay */}
+            <div className="absolute inset-0 bg-gray-100 opacity-80 z-0"></div>
+            <div className="relative z-10">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
+                Why Attend?
+              </h3>
+              <p className="text-base sm:text-lg text-gray-700">
+                This hackathon isn't just about building - it's about connecting with the venture capital ecosystem, 
+                learning what it takes to build impactful companies, and potentially finding your next co-founder or investor.
+              </p>
+            </div>
           </Card>
         </div>
       </Container>

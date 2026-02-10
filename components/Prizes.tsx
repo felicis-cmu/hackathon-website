@@ -40,10 +40,10 @@ export const Prizes = () => {
     <section id="prizes" className="py-16 sm:py-20 bg-gray-50">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Compete & Win
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 font-light">
             Top 3 teams meet Felicis partners and take home incredible prizes
           </p>
         </div>
@@ -56,10 +56,10 @@ export const Prizes = () => {
                 <button
                   key={index}
                   onClick={() => setSelectedPrize(index)}
-                  className={`flex-1 md:flex-none px-6 py-4 md:px-8 md:py-6 rounded-2xl font-bold text-left transition-all duration-300 ${
+                  className={`flex-1 md:flex-none px-6 py-4 md:px-8 md:py-6 rounded-2xl font-bold text-left transition-all ease-liquid duration-300 ${
                     selectedPrize === index
-                      ? 'bg-gradient-purple text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+                      ? 'bg-gray-900 text-white shadow-lg scale-105'
+                      : 'glass-context text-gray-700 hover:scale-105'
                   }`}
                 >
                   <div className="text-4xl md:text-5xl mb-1">
@@ -74,7 +74,10 @@ export const Prizes = () => {
 
             {/* Right side - Prize display card */}
             <div className="flex-1">
-              <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+              <div className="glass-shot-card rounded-3xl overflow-hidden transform transition-all ease-liquid duration-300 hover:scale-[1.02]">
+                {/* Shimmer effect on hover */}
+                <div className="glass-shimmer"></div>
+                
                 <div className="relative aspect-[4/3] w-full bg-gray-100">
                   {currentPrize.isGif ? (
                     <img
@@ -97,8 +100,8 @@ export const Prizes = () => {
                   {/* Overlay text for 1st place */}
                   {currentPrize.showText && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-black/50 backdrop-blur-sm px-8 py-4 rounded-2xl">
-                        <div className="text-5xl sm:text-6xl md:text-7xl font-bold text-white">
+                      <div className="glass-context px-8 py-4 rounded-2xl">
+                        <div className="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-900">
                           $2500
                         </div>
                       </div>
@@ -120,13 +123,17 @@ export const Prizes = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <div className="bg-gradient-orange rounded-3xl p-8 sm:p-12 max-w-3xl mx-auto">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-              Success & Impact
-            </h3>
-            <p className="text-base sm:text-lg md:text-xl text-white/90">
-              Top 3 teams meet Felicis Partners and get direct feedback on your projects
-            </p>
+          <div className="liquid-panel rounded-3xl p-8 sm:p-12 max-w-3xl mx-auto relative overflow-hidden">
+            {/* Neutral background overlay */}
+            <div className="absolute inset-0 bg-gray-100 opacity-90 z-0"></div>
+            <div className="relative z-10">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Success & Impact
+              </h3>
+              <p className="text-base sm:text-lg md:text-xl text-gray-700">
+                Top 3 teams meet Felicis Partners and get direct feedback on your projects
+              </p>
+            </div>
           </div>
         </div>
       </Container>

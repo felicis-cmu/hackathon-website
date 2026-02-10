@@ -6,8 +6,8 @@ export const Footer = () => {
       <Container>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-              <span className="text-gradient-purple">VentureHack</span>
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white">
+              VentureHack
             </h3>
             <p className="text-sm sm:text-base text-gray-400">
               Building iconic companies together
