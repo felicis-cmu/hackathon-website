@@ -27,10 +27,10 @@ export const Speakers = () => {
     <section className="py-16 sm:py-20 bg-gray-50">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Speakers & Activities
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 font-light">
             Learn from industry leaders and connect with venture capitalists
           </p>
         </div>

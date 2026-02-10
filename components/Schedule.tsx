@@ -1,5 +1,4 @@
 import { Container } from './ui/Container'
-import { Card } from './ui/Card'
 
 export const Schedule = () => {
   const scheduleItems = [
@@ -39,43 +38,42 @@ export const Schedule = () => {
     <section id="schedule" className="py-16 sm:py-20">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Event Schedule
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600 font-light">
             Saturday, March 14 - Full Day of Building
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-6 sm:left-8 md:left-12 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+            {/* Centered timeline line */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-300"></div>
             
-            <div className="space-y-6 sm:space-y-8">
-              {scheduleItems.map((item, index) => (
-                <div key={index} className="relative pl-16 sm:pl-20 md:pl-28">
-                  {/* Timeline dot */}
-                  <div className="absolute left-3 sm:left-5 md:left-8 top-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-900 ring-4 ring-gray-200"></div>
-                  
-                  <Card variant="glass-card" className="hover:shadow-xl hover:scale-[1.02] transition-all ease-liquid">
-                    <div className="glass-shimmer"></div>
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm sm:text-base text-gray-600">
-                          {item.description}
-                        </p>
-                      </div>
-                      <div className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 md:text-right whitespace-nowrap">
+            <div className="space-y-12">
+              {scheduleItems.map((item, index) => {
+                const isLeft = index % 2 === 0
+                return (
+                  <div key={index} className={`relative flex items-center ${isLeft ? 'justify-end' : 'justify-start'}`}>
+                    {/* Timeline dot */}
+                    <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gray-900 ring-4 ring-white z-10"></div>
+                    
+                    {/* Content */}
+                    <div className={`w-[calc(50%-2rem)] ${isLeft ? 'text-right pr-8' : 'text-left pl-8'}`}>
+                      <div className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                         {item.time}
                       </div>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-600">
+                        {item.description}
+                      </p>
                     </div>
-                  </Card>
-                </div>
-              ))}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

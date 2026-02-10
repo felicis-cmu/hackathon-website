@@ -10,7 +10,7 @@ export const Header = () => {
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
-    element?.scrollIntoView({ behavior: 'smooth' })
+    element?.scrollIntoView({ behavior: 'auto' })
   }
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const Header = () => {
       <div className="glass-toolbar mx-auto mt-4 w-fit px-2 py-2">
         <div className="flex items-center gap-2 sm:gap-4">
           <button 
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
             className="flex items-center gap-2 px-3 py-1 hover:opacity-80 transition-opacity"
           >
             <Image 
@@ -62,7 +62,7 @@ export const Header = () => {
 
           <div className="flex items-center gap-1">
             <button 
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
               className={`glass-tab ${activeSection === 'home' ? 'glass-tab-active' : ''}`}
             >
               Home
