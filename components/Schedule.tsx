@@ -59,17 +59,20 @@ export const Schedule = () => {
                     {/* Timeline dot */}
                     <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gray-900 ring-4 ring-white z-10"></div>
                     
-                    {/* Content */}
-                    <div className={`glass-context w-[calc(40%-1rem)] p-4 sm:p-5 ${isLeft ? 'text-right pr-6' : 'text-left pl-6'}`}>
-                      <div className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                        {item.time}
+                    {/* Content — liquid glass card */}
+                    <div className={`glass-shot-card w-[calc(40%-1rem)] rounded-2xl overflow-hidden ${isLeft ? 'text-right pr-6' : 'text-left pl-6'}`}>
+                      <div className="glass-shimmer" />
+                      <div className="relative z-10 p-4 sm:p-5">
+                        <div className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+                          {item.time}
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm sm:text-base text-gray-600">
+                          {item.description}
+                        </p>
                       </div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm sm:text-base text-gray-600">
-                        {item.description}
-                      </p>
                     </div>
                   </div>
                 )
