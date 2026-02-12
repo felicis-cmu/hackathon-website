@@ -52,7 +52,7 @@ export const FAQ = () => {
                   <span className="text-base font-medium text-gray-900 group-hover:text-felicis-orange transition-colors">
                     {faq.q}
                   </span>
-                  <span className="text-gray-400 text-lg shrink-0 transition-transform duration-200" style={{ transform: open === i ? 'rotate(45deg)' : 'none' }}>
+                  <span className="text-felicis-orange text-lg shrink-0 transition-transform duration-200" style={{ transform: open === i ? 'rotate(45deg)' : 'none' }}>
                     +
                   </span>
                 </button>

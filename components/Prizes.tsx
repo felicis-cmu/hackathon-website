@@ -47,7 +47,7 @@ export const Prizes = () => {
               style={{ backgroundColor: prize.bg, borderColor: prize.border }}
               className="rounded-2xl border p-6 sm:p-7 flex flex-col"
             >
-              <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">
+              <div className="text-xs font-semibold uppercase tracking-widest text-felicis-orange mb-4">
                 {prize.place} Place
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">
