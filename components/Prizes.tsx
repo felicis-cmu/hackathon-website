@@ -6,21 +6,24 @@ const prizes = [
     amount: '$2,500',
     desc: 'Cash prize',
     perk: 'Coffee chat with Felicis partners',
-    accent: 'bg-amber-50/70 border-amber-200/60',
+    bg: '#FFFFFF',
+    border: '#E8DDD2',
   },
   {
     place: '2nd',
     amount: 'Meta Ray-Bans',
     desc: 'Smart glasses per team member',
     perk: 'Coffee chat with Felicis partners',
-    accent: 'bg-violet-50/70 border-violet-200/60',
+    bg: '#FFFFFF',
+    border: '#E8DDD2',
   },
   {
     place: '3rd',
     amount: 'Nintendo Switch',
     desc: 'Or Apple Watch SE per team member',
     perk: 'Coffee chat with Felicis partners',
-    accent: '',
+    bg: '#FFFFFF',
+    border: '#E8DDD2',
   },
 ]
 
@@ -41,22 +44,20 @@ export const Prizes = () => {
           {prizes.map((prize) => (
             <div
               key={prize.place}
-              className={`glass-shot-card rounded-2xl overflow-hidden ${prize.accent}`}
+              style={{ backgroundColor: prize.bg, borderColor: prize.border }}
+              className="rounded-2xl border p-6 sm:p-7 flex flex-col"
             >
-              <div className="glass-shimmer" />
-              <div className="relative z-10 p-6 sm:p-7 flex flex-col h-full">
-                <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">
-                  {prize.place} Place
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">
-                  {prize.amount}
-                </div>
-                <div className="text-sm text-gray-600 flex-1">
-                  {prize.desc}
-                </div>
-                <div className="mt-5 pt-4 border-t border-gray-200/60 text-xs text-gray-500">
-                  {prize.perk}
-                </div>
+              <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">
+                {prize.place} Place
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">
+                {prize.amount}
+              </div>
+              <div className="text-sm text-gray-600 flex-1">
+                {prize.desc}
+              </div>
+              <div className="mt-5 pt-4 border-t border-black/10 text-xs text-gray-500">
+                {prize.perk}
               </div>
             </div>
           ))}

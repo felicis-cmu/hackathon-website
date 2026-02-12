@@ -34,7 +34,7 @@ export const FAQ = () => {
       <Container>
         <div className="max-w-2xl mx-auto">
           <div className="mb-10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-orange-500 mb-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-felicis-orange mb-3">
               FAQ
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
@@ -49,7 +49,7 @@ export const FAQ = () => {
                   onClick={() => setOpen(open === i ? null : i)}
                   className="w-full flex items-center justify-between py-5 text-left gap-4 group"
                 >
-                  <span className="text-base font-medium text-gray-900 group-hover:text-orange-500 transition-colors">
+                  <span className="text-base font-medium text-gray-900 group-hover:text-felicis-orange transition-colors">
                     {faq.q}
                   </span>
                   <span className="text-gray-400 text-lg shrink-0 transition-transform duration-200" style={{ transform: open === i ? 'rotate(45deg)' : 'none' }}>

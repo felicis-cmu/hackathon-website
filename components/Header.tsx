@@ -84,14 +84,12 @@ export const Header = () => {
           </div>
         </div>
 
-        <div className="glass-toolbar w-fit px-2 py-2">
-          <Link
-            href="/apply"
-            className="glass-tab glass-tab-active"
-          >
-            Apply →
-          </Link>
-        </div>
+        <Link
+          href="/apply"
+          className="px-5 py-2 text-sm font-medium text-gray-900 rounded-full border border-felicis-border bg-felicis-peach hover:border-felicis-orange hover:text-felicis-orange transition-all duration-200"
+        >
+          Apply →
+        </Link>
       </div>
     </header>
   )

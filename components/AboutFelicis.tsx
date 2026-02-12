@@ -14,18 +14,18 @@ const stats = [
 
 export const AboutFelicis = () => {
   return (
-    <section className="bg-stone-100 py-16 sm:py-24">
+    <section className="bg-felicis-peach py-16 sm:py-24">
       <Container>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start max-w-5xl mx-auto">
 
           {/* Left — copy */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-orange-500 mb-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-felicis-orange mb-4">
               About Felicis
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight leading-tight mb-5">
               Luck isn't made,<br />
-              <span className="text-orange-400 italic font-light">it's engineered.</span>
+              <span className="text-felicis-orange italic font-light">it's engineered.</span>
             </h2>
             <p className="text-base text-gray-500 font-light leading-relaxed mb-10">
               Felicis has been backing category-defining companies since 2006.
