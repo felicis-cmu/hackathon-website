@@ -41,51 +41,56 @@ export const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      <div className="glass-toolbar mx-auto mt-4 w-fit px-2 py-2">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <button 
-            onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
-            className="flex items-center gap-2 px-3 py-1 hover:opacity-80 transition-opacity"
-          >
-            <Image 
-              src="/logos/felicis.png"
-              alt="Felicis Logo"
-              width={32}
-              height={32}
-              className="w-6 h-6 sm:w-8 sm:h-8"
-              priority
-            />
-            <div className="text-sm sm:text-base font-medium text-gray-900 tracking-wide">
-              VentureHack
-            </div>
-          </button>
-
-          <div className="flex items-center gap-1">
-            <button 
+      <div className="flex items-center justify-center gap-3 mt-4">
+        <div className="glass-toolbar w-fit px-2 py-2">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
-              className={`glass-tab ${activeSection === 'home' ? 'glass-tab-active' : ''}`}
+              className="flex items-center gap-2 px-3 py-1 hover:opacity-80 transition-opacity"
             >
-              Home
+              <Image
+                src="/logos/felicis.png"
+                alt="Felicis Logo"
+                width={32}
+                height={32}
+                className="w-6 h-6 sm:w-8 sm:h-8"
+                priority
+              />
+              <div className="text-sm sm:text-base font-medium text-gray-900 tracking-wide">
+                VentureHack
+              </div>
             </button>
-            <button 
-              onClick={() => scrollToSection('prizes')}
-              className={`glass-tab ${activeSection === 'prizes' ? 'glass-tab-active' : ''}`}
-            >
-              Prizes
-            </button>
-            <button 
-              onClick={() => scrollToSection('schedule')}
-              className={`glass-tab hidden sm:inline-flex ${activeSection === 'schedule' ? 'glass-tab-active' : ''}`}
-            >
-              Schedule
-            </button>
-            <Link 
-              href="/apply"
-              className="glass-tab glass-tab-active"
-            >
-              Apply
-            </Link>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
+                className={`glass-tab ${activeSection === 'home' ? 'glass-tab-active' : ''}`}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => scrollToSection('prizes')}
+                className={`glass-tab ${activeSection === 'prizes' ? 'glass-tab-active' : ''}`}
+              >
+                Prizes
+              </button>
+              <button
+                onClick={() => scrollToSection('schedule')}
+                className={`glass-tab hidden sm:inline-flex ${activeSection === 'schedule' ? 'glass-tab-active' : ''}`}
+              >
+                Schedule
+              </button>
+            </div>
           </div>
+        </div>
+
+        <div className="glass-toolbar w-fit px-2 py-2">
+          <Link
+            href="/apply"
+            className="glass-tab glass-tab-active"
+          >
+            Apply →
+          </Link>
         </div>
       </div>
     </header>

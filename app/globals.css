@@ -5,7 +5,7 @@
 :root {
   --foreground-rgb: 17, 24, 39;
   --background-rgb: 255, 255, 255;
-  --font-mono: var(--font-ibm-plex-mono);
+  --font-sans: var(--font-plus-jakarta-sans);
 
   /* Liquid glass — tunable via LiquidGlassTuner */
   --glass-frost-blur: 14;
@@ -34,7 +34,7 @@ body {
     radial-gradient(1500px circle at 10% -10%, rgba(251, 146, 60, 0.16), transparent 72%),
     radial-gradient(1300px circle at 90% 110%, rgba(249, 115, 22, 0.12), transparent 70%),
     rgb(var(--background-rgb));
-  font-family: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;

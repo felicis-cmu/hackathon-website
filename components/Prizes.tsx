@@ -4,7 +4,7 @@ const prizes = [
   {
     place: '1st',
     amount: '$2,500',
-    desc: 'Cash prize per team',
+    desc: 'Cash prize',
     perk: 'Coffee chat with Felicis partners',
     accent: 'bg-amber-50/70 border-amber-200/60',
   },

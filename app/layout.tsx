@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { IBM_Plex_Mono, Dancing_Script } from 'next/font/google'
+import { Plus_Jakarta_Sans, Dancing_Script } from 'next/font/google'
 import './globals.css'
 
-const ibmPlexMono = IBM_Plex_Mono({ 
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-ibm-plex-mono',
-  weight: ['300', '400', '500', '600', '700']
+  variable: '--font-plus-jakarta-sans',
+  weight: ['300', '400', '500', '600', '700', '800'],
 })
 
-export const dancingScript = Dancing_Script({ 
+export const dancingScript = Dancing_Script({
   subsets: ['latin'],
   variable: '--font-dancing-script',
   weight: ['400', '700']
@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${ibmPlexMono.variable} ${dancingScript.variable} font-mono antialiased`}>{children}</body>
+      <body className={`${plusJakartaSans.variable} ${dancingScript.variable} font-sans antialiased`}>{children}</body>
     </html>
   )
 }
