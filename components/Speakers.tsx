@@ -33,7 +33,7 @@ export const Speakers = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {activities.map((activity, index) => (
-            <div key={index} className="glass-shot-card rounded-2xl p-6 sm:p-8 hover:shadow-xl transition-all hover:-translate-y-2 ease-liquid duration-300">
+            <div key={index} className="glass-shot-card rounded-2xl p-6 sm:p-8">
                 <div className="glass-shimmer"></div>
                 <div className="relative space-y-3 sm:space-y-4">
                   <h3 className="text-xl sm:text-2xl font-bold text-gray-900">

@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         mono: ['var(--font-ibm-plex-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
-        dancing: ['var(--font-dancing-script)', 'cursive'],
+        geist: ['var(--font-geist)', 'Geist', 'Geist Placeholder', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

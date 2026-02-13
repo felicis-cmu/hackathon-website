@@ -1,7 +1,395 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
+import { createClient } from '@/lib/supabase/client'
+import { CustomSelect } from '@/components/ui/CustomSelect'
+
+const SHORT_ANSWERS_INTRO =
+  'Your answers will be reviewed and weighed towards invitations to the final dinner and Felicis meetings—opportunities are not limited to hackathon winners.'
+
+const SHORT_QUESTIONS = [
+  'Why do you want to attend VentureHacks?',
+  'Describe a project you\'ve built or worked on. What was your role?',
+  'What do you hope to learn or achieve at the hackathon?',
+  'What is the best demonstration of your excellence as a builder?',
+]
+
+const MCQ_QUESTIONS = [
+  {
+    id: 'experience',
+    question: 'What is your hackathon experience level?',
+    options: ['First time', '1-2 hackathons', '3-5 hackathons', '6+ hackathons'],
+  },
+  {
+    id: 'team',
+    question: 'Do you have a team, or are you looking for one?',
+    options: ['I have a team', 'Looking for a team', 'Solo participant'],
+  },
+  {
+    id: 'focus',
+    question: 'What area interests you most?',
+    options: ['AI/ML', 'Web3', 'DevTools', 'Consumer apps', 'Other'],
+  },
+]
+
 export default function ApplyPage() {
+  const { user, loading, signInWithGoogle } = useAuth()
+  const [submitted, setSubmitted] = useState(false)
+  const [formLoading, setFormLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    linkedin_url: '',
+    short_answer_1: '',
+    short_answer_2: '',
+    short_answer_3: '',
+    short_answer_4: '',
+    mcq_responses: {} as Record<string, string>,
+    resume: null as File | null,
+  })
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        full_name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? '',
+        email: user.email ?? '',
+      }))
+    }
+  }, [user])
+
+  const checkExistingApplication = async () => {
+    if (!user) return null
+    const { data } = await supabase
+      .from('applications')
+      .select('id, status')
+      .eq('user_id', user.id)
+      .single()
+    return data
+  }
+
+  useEffect(() => {
+    if (user) {
+      checkExistingApplication().then((data) => {
+        if (data) setSubmitted(true)
+      })
+    }
+  }, [user])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+    if (validationErrors[name]) setValidationErrors((e) => ({ ...e, [name]: '' }))
+  }
+
+  const handleMcqChange = (key: string, value: string) => {
+    setForm((f) => ({
+      ...f,
+      mcq_responses: { ...f.mcq_responses, [key]: value },
+    }))
+    if (validationErrors[`mcq_${key}`]) setValidationErrors((e) => ({ ...e, [`mcq_${key}`]: '' }))
+  }
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {}
+    if (!form.full_name?.trim()) errors.full_name = 'Required'
+    if (!form.email?.trim()) errors.email = 'Required'
+    if (!form.phone?.trim()) errors.phone = 'Required'
+    if (!form.linkedin_url?.trim()) errors.linkedin_url = 'Required'
+    if (!form.short_answer_1?.trim()) errors.short_answer_1 = 'Required'
+    if (!form.short_answer_2?.trim()) errors.short_answer_2 = 'Required'
+    if (!form.short_answer_3?.trim()) errors.short_answer_3 = 'Required'
+    if (!form.short_answer_4?.trim()) errors.short_answer_4 = 'Required'
+    MCQ_QUESTIONS.forEach((q) => {
+      if (!form.mcq_responses[q.id]?.trim()) errors[`mcq_${q.id}`] = 'Required'
+    })
+    if (!form.resume) errors.resume = 'Required'
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user) return
+    if (!validateForm()) return
+
+    setFormLoading(true)
+    setError(null)
+    setValidationErrors({})
+
+    try {
+      let resumeUrl: string | null = null
+      let resumeFilename: string | null = null
+
+      if (form.resume) {
+        const ext = form.resume.name.split('.').pop()
+        const path = `${user.id}/resume.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('resumes')
+          .upload(path, form.resume, { upsert: true })
+
+        if (uploadError) throw uploadError
+
+        const { data: urlData } = supabase.storage.from('resumes').getPublicUrl(path)
+        resumeUrl = urlData.publicUrl
+        resumeFilename = form.resume.name
+      }
+
+      const { error: insertError } = await supabase.from('applications').upsert(
+        {
+          user_id: user.id,
+          full_name: form.full_name,
+          email: form.email,
+          phone: form.phone,
+          linkedin_url: form.linkedin_url,
+          short_answer_1: form.short_answer_1,
+          short_answer_2: form.short_answer_2,
+          short_answer_3: form.short_answer_3,
+          short_answer_4: form.short_answer_4,
+          mcq_responses: form.mcq_responses,
+          resume_url: resumeUrl,
+          resume_filename: resumeFilename,
+        },
+        { onConflict: 'user_id' }
+      )
+
+      if (insertError) throw insertError
+      setSubmitted(true)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setFormLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse text-gray-500">Loading...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Apply to VentureHacks</h1>
+          <p className="text-gray-600 mb-8">
+            Sign in to continue your application. We use your account to save your progress.
+          </p>
+          <div className="space-y-4">
+            <button
+              onClick={signInWithGoogle}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all font-medium text-gray-900"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+          </div>
+          <p className="mt-6 text-sm text-gray-500">
+            <Link href="/" className="text-purple-600 hover:underline">← Back to home</Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="text-6xl mb-4">✓</div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted</h1>
+          <p className="text-gray-600 mb-8">
+            Thanks for applying to VentureHacks! We&apos;ll review your application and get back to you soon.
+          </p>
+          <Link
+            href="/"
+            className="inline-block px-6 py-3 rounded-2xl bg-gray-900 text-white font-medium hover:bg-gray-800 transition-colors"
+          >
+            Back to home
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      application
+    <div className="min-h-screen py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8">
+          <Link href="/" className="text-purple-600 hover:underline text-sm">← Back to home</Link>
+          <h1 className="text-3xl font-bold text-gray-900 mt-4">Apply to VentureHacks</h1>
+          <p className="text-gray-600 mt-2">March 14, 2026</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {error && (
+            <div className="p-4 rounded-2xl bg-red-50 text-red-700 border border-red-200">
+              {error}
+            </div>
+          )}
+
+          <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl font-bold text-gray-900">Basic Information</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                <input
+                  type="text"
+                  name="full_name"
+                  value={form.full_name}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                    validationErrors.full_name ? 'border-red-500' : 'border-gray-200'
+                  }`}
+                />
+                {validationErrors.full_name && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.full_name}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                    validationErrors.email ? 'border-red-500' : 'border-gray-200'
+                  }`}
+                />
+                {validationErrors.email && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                    validationErrors.phone ? 'border-red-500' : 'border-gray-200'
+                  }`}
+                />
+                {validationErrors.phone && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL *</label>
+                <input
+                  type="url"
+                  name="linkedin_url"
+                  value={form.linkedin_url}
+                  onChange={handleChange}
+                  placeholder="https://linkedin.com/in/..."
+                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                    validationErrors.linkedin_url ? 'border-red-500' : 'border-gray-200'
+                  }`}
+                />
+                {validationErrors.linkedin_url && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.linkedin_url}</p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl font-bold text-gray-900">Short Answers</h2>
+            <p className="text-sm text-gray-600 mb-4">{SHORT_ANSWERS_INTRO}</p>
+            {SHORT_QUESTIONS.map((q, i) => {
+              const key = `short_answer_${i + 1}` as keyof typeof form
+              const value = form[key] as string
+              const hasError = !!validationErrors[key]
+              return (
+                <div key={i}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{q} *</label>
+                  <textarea
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    rows={4}
+                    className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none ${
+                      hasError ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                  />
+                  {validationErrors[key] && (
+                    <p className="mt-1 text-sm text-red-600">{validationErrors[key]}</p>
+                  )}
+                </div>
+              )
+            })}
+          </section>
+
+          <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl font-bold text-gray-900">Multiple Choice</h2>
+            {MCQ_QUESTIONS.map((q) => (
+              <div key={q.id}>
+                <CustomSelect
+                  id={`mcq_${q.id}`}
+                  label={`${q.question} *`}
+                  value={form.mcq_responses[q.id] ?? ''}
+                  options={q.options}
+                  onChange={(v) => handleMcqChange(q.id, v)}
+                  hasError={!!validationErrors[`mcq_${q.id}`]}
+                />
+                {validationErrors[`mcq_${q.id}`] && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors[`mcq_${q.id}`]}</p>
+                )}
+              </div>
+            ))}
+          </section>
+
+          <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl font-bold text-gray-900">Resume *</h2>
+            <p className="text-sm text-gray-600">Upload your resume (PDF, PNG, or JPG, max 5MB)</p>
+            <input
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg"
+              onChange={(e) => {
+                setForm((f) => ({ ...f, resume: e.target.files?.[0] ?? null }))
+                if (validationErrors.resume) setValidationErrors((err) => ({ ...err, resume: '' }))
+              }}
+              className={`w-full px-4 py-3 rounded-xl border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:font-medium cursor-pointer ${
+                validationErrors.resume ? 'border-red-500' : 'border-gray-200'
+              }`}
+            />
+            {validationErrors.resume && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.resume}</p>
+            )}
+          </section>
+
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={formLoading}
+              className="flex-1 px-6 py-4 rounded-2xl bg-purple-600 text-white font-medium hover:bg-purple-700 disabled:opacity-50 transition-colors"
+            >
+              {formLoading ? 'Submitting...' : 'Submit Application'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

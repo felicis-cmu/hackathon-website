@@ -2,10 +2,12 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Container } from './ui/Container'
 import { useState, useEffect } from 'react'
 
 export const Header = () => {
+  const pathname = usePathname()
   const [activeSection, setActiveSection] = useState('home')
 
   const scrollToSection = (id: string) => {
@@ -15,7 +17,7 @@ export const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['prizes', 'schedule']
+      const sections = ['aims', 'prizes', 'schedule', 'faq']
       const scrollPosition = window.scrollY + 100
 
       if (scrollPosition < 100) {
@@ -56,7 +58,7 @@ export const Header = () => {
               priority
             />
             <div className="text-sm sm:text-base font-medium text-gray-900 tracking-wide">
-              VentureHack
+              VentureHacks
             </div>
           </button>
 
@@ -66,6 +68,12 @@ export const Header = () => {
               className={`glass-tab ${activeSection === 'home' ? 'glass-tab-active' : ''}`}
             >
               Home
+            </button>
+            <button 
+              onClick={() => scrollToSection('aims')}
+              className={`glass-tab hidden sm:inline-flex ${activeSection === 'aims' ? 'glass-tab-active' : ''}`}
+            >
+              Aims
             </button>
             <button 
               onClick={() => scrollToSection('prizes')}
@@ -79,9 +87,15 @@ export const Header = () => {
             >
               Schedule
             </button>
+            <button 
+              onClick={() => scrollToSection('faq')}
+              className={`glass-tab hidden sm:inline-flex ${activeSection === 'faq' ? 'glass-tab-active' : ''}`}
+            >
+              FAQ
+            </button>
             <Link 
               href="/apply"
-              className="glass-tab glass-tab-active"
+              className={`glass-tab ${pathname === '/apply' ? 'glass-tab-active' : ''}`}
             >
               Apply
             </Link>

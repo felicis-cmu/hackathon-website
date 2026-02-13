@@ -6,8 +6,9 @@ A modern, responsive website for VentureHack on March 14, built with Next.js 14,
 
 - **Modern Design**: Inspired by Felicis brand with gradient accents and clean typography
 - **Responsive**: Mobile-first design that works on all devices
-- **Fast Performance**: Built with Next.js 14 App Router for optimal performance
-- **Supabase Ready**: Pre-configured for future RSVP and registration features
+- **Apply Flow**: OAuth sign-in (Google) + application form with short answers, MCQs, resume upload
+- **Admin Export**: Download all applications as CSV at `/admin` for review in Sheets or Excel
+- **Supabase**: Auth, database, and storage configured
 
 ## Tech Stack
 
@@ -31,13 +32,18 @@ A modern, responsive website for VentureHack on March 14, built with Next.js 14,
 npm install
 ```
 
-2. (Optional) Set up Supabase environment variables:
-
-Copy `.env.local.example` to `.env.local` and add your Supabase credentials:
+2. Set up Supabase (required for `/apply` and `/admin`):
 
 ```bash
 cp .env.local.example .env.local
 ```
+
+Edit `.env.local` with:
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Supabase Dashboard → Settings → API
+- `SUPABASE_SERVICE_ROLE_KEY` (for admin export)
+- `ADMIN_SECRET` (password for `/admin` CSV download)
+
+Enable OAuth in Supabase → Authentication → Providers (Google). Add redirect URL: `http://localhost:3000/auth/callback`
 
 3. Run the development server:
 

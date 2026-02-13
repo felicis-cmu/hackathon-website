@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { IBM_Plex_Mono, Dancing_Script } from 'next/font/google'
+import { IBM_Plex_Mono, Geist } from 'next/font/google'
+import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
 
 const ibmPlexMono = IBM_Plex_Mono({ 
@@ -8,16 +9,19 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ['300', '400', '500', '600', '700']
 })
 
-export const dancingScript = Dancing_Script({ 
+const geist = Geist({
   subsets: ['latin'],
-  variable: '--font-dancing-script',
-  weight: ['400', '700']
+  variable: '--font-geist',
 })
 
 export const metadata: Metadata = {
-  title: 'VentureHack - March 14',
-  description: 'Join us for VentureHack on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
-  keywords: ['hackathon', 'venturehack', 'venture capital', 'technology', 'competition', 'felicis'],
+  title: 'VentureHacks - March 14',
+  description: 'Join us for VentureHacks on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
+  keywords: ['hackathon', 'venturehacks', 'venture capital', 'technology', 'competition', 'felicis'],
+  icons: {
+    icon: '/logos/felicis.png',
+    apple: '/logos/felicis.png',
+  },
 }
 
 export default function RootLayout({
@@ -27,7 +31,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${ibmPlexMono.variable} ${dancingScript.variable} font-mono antialiased`}>{children}</body>
+      <body className={`${ibmPlexMono.variable} ${geist.variable} font-mono antialiased`}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }

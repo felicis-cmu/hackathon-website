@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Hackathons/ScrappyDevs/ProVision"
+		},
+		{
+			"path": "../Hackathons/ScrappyDevs/Testing/liquid-glass"
+		}
+	],
+	"settings": {}
+}
