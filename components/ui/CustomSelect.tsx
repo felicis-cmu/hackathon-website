@@ -73,16 +73,16 @@ export function CustomSelect({
             onChange(opt)
             setIsOpen(false)
           }}
-          className="w-full px-4 py-3 text-left transition-colors first:rounded-t-[11px] last:rounded-b-[11px]"
+          className="w-full px-4 py-3 text-sm text-left transition-colors first:rounded-t-[11px] last:rounded-b-[11px]"
           style={{
-            backgroundColor: value === opt ? '#f5f3ff' : '#ffffff',
-            color: value === opt ? '#5b21b6' : '#111827',
+            backgroundColor: value === opt ? '#F5EDE0' : '#ffffff',
+            color: value === opt ? '#C96824' : '#111827',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = value === opt ? '#ede9fe' : '#f9fafb'
+            e.currentTarget.style.backgroundColor = value === opt ? '#F5EDE0' : '#f9fafb'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = value === opt ? '#f5f3ff' : '#ffffff'
+            e.currentTarget.style.backgroundColor = value === opt ? '#F5EDE0' : '#ffffff'
           }}
         >
           {opt}
@@ -101,10 +101,10 @@ export function CustomSelect({
         type="button"
         id={id}
         onClick={() => setIsOpen((o) => !o)}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border bg-white text-left transition-colors ${
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border bg-white text-sm text-left transition-colors ${
           hasError
             ? 'border-red-500 focus:ring-2 focus:ring-red-500'
-            : 'border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+            : 'border-gray-200 focus:ring-2 focus:ring-felicis-orange focus:border-transparent'
         } outline-none`}
       >
         <span className={value ? 'text-gray-900' : 'text-gray-500'}>{value || placeholder}</span>

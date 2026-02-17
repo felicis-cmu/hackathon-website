@@ -1,10 +1,61 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
 import { CustomSelect } from '@/components/ui/CustomSelect'
+
+const DRAFT_KEY = (userId: string) => `venturehacks-apply-draft-${userId}`
+
+type DraftForm = Omit<ReturnType<typeof getInitialForm>, 'resume'> & { resume: null }
+
+function getInitialForm() {
+  return {
+    full_name: '',
+    email: '',
+    phone: '',
+    linkedin_url: '',
+    github_url: '',
+    short_answer_1: '',
+    short_answer_2: '',
+    short_answer_3: '',
+    short_answer_4: '',
+    mcq_responses: {} as Record<string, string>,
+    resume: null as File | null,
+  }
+}
+
+function loadDraft(userId: string): Partial<DraftForm> | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY(userId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<DraftForm>
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function saveDraft(userId: string, form: DraftForm) {
+  if (typeof window === 'undefined') return
+  try {
+    const { resume: _, ...rest } = form
+    localStorage.setItem(DRAFT_KEY(userId), JSON.stringify(rest))
+  } catch {
+    // ignore
+  }
+}
+
+function clearDraft(userId: string) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(DRAFT_KEY(userId))
+  } catch {
+    // ignore
+  }
+}
 
 const SHORT_ANSWERS_INTRO =
   'Your answers will be reviewed and weighed towards invitations to the final dinner and Felicis meetings—opportunities are not limited to hackathon winners.'
@@ -39,31 +90,50 @@ export default function ApplyPage() {
   const [submitted, setSubmitted] = useState(false)
   const [formLoading, setFormLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [form, setForm] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    linkedin_url: '',
-    short_answer_1: '',
-    short_answer_2: '',
-    short_answer_3: '',
-    short_answer_4: '',
-    mcq_responses: {} as Record<string, string>,
-    resume: null as File | null,
-  })
+  const [form, setForm] = useState(getInitialForm)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const supabase = createClient()
 
+  // Load draft from localStorage when user is available (and not submitted)
   useEffect(() => {
-    if (user) {
+    if (!user) return
+    const draft = loadDraft(user.id)
+    if (draft) {
+      setForm((f) => ({
+        ...f,
+        ...draft,
+        full_name: draft.full_name || (user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''),
+        email: draft.email || (user.email ?? ''),
+        resume: null, // Resume cannot be persisted
+      }))
+    } else {
       setForm((f) => ({
         ...f,
         full_name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? '',
         email: user.email ?? '',
       }))
     }
-  }, [user])
+  }, [user?.id])
+
+  const persistDraft = useCallback(() => {
+    if (!user) return
+    saveDraft(user.id, form)
+  }, [user?.id, form])
+
+  // Debounced save to localStorage on form change
+  useEffect(() => {
+    if (!user) return
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => {
+      persistDraft()
+      saveTimeoutRef.current = null
+    }, 500)
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    }
+  }, [form, user?.id, persistDraft])
 
   const checkExistingApplication = async () => {
     if (!user) return null
@@ -101,8 +171,8 @@ export default function ApplyPage() {
     const errors: Record<string, string> = {}
     if (!form.full_name?.trim()) errors.full_name = 'Required'
     if (!form.email?.trim()) errors.email = 'Required'
-    if (!form.phone?.trim()) errors.phone = 'Required'
     if (!form.linkedin_url?.trim()) errors.linkedin_url = 'Required'
+    if (!form.github_url?.trim()) errors.github_url = 'Required'
     if (!form.short_answer_1?.trim()) errors.short_answer_1 = 'Required'
     if (!form.short_answer_2?.trim()) errors.short_answer_2 = 'Required'
     if (!form.short_answer_3?.trim()) errors.short_answer_3 = 'Required'
@@ -149,6 +219,7 @@ export default function ApplyPage() {
           email: form.email,
           phone: form.phone,
           linkedin_url: form.linkedin_url,
+          github_url: form.github_url,
           short_answer_1: form.short_answer_1,
           short_answer_2: form.short_answer_2,
           short_answer_3: form.short_answer_3,
@@ -161,6 +232,7 @@ export default function ApplyPage() {
       )
 
       if (insertError) throw insertError
+      clearDraft(user.id)
       setSubmitted(true)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -202,7 +274,7 @@ export default function ApplyPage() {
             </button>
           </div>
           <p className="mt-6 text-sm text-gray-500">
-            <Link href="/" className="text-purple-600 hover:underline">← Back to home</Link>
+            <Link href="/" className="text-felicis-orange hover:underline">← Back to home</Link>
           </p>
         </div>
       </div>
@@ -233,7 +305,7 @@ export default function ApplyPage() {
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <Link href="/" className="text-purple-600 hover:underline text-sm">← Back to home</Link>
+          <Link href="/" className="text-felicis-orange hover:underline text-sm">← Back to home</Link>
           <h1 className="text-3xl font-bold text-gray-900 mt-4">Apply to VentureHacks</h1>
           <p className="text-gray-600 mt-2">March 14, 2026</p>
         </div>
@@ -255,7 +327,7 @@ export default function ApplyPage() {
                   name="full_name"
                   value={form.full_name}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none ${
                     validationErrors.full_name ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
@@ -270,7 +342,7 @@ export default function ApplyPage() {
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none ${
                     validationErrors.email ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
@@ -281,13 +353,13 @@ export default function ApplyPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none ${
                     validationErrors.phone ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
@@ -303,7 +375,7 @@ export default function ApplyPage() {
                   value={form.linkedin_url}
                   onChange={handleChange}
                   placeholder="https://linkedin.com/in/..."
-                  className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none ${
                     validationErrors.linkedin_url ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
@@ -311,6 +383,22 @@ export default function ApplyPage() {
                   <p className="mt-1 text-sm text-red-600">{validationErrors.linkedin_url}</p>
                 )}
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">GitHub URL *</label>
+              <input
+                type="url"
+                name="github_url"
+                value={form.github_url}
+                onChange={handleChange}
+                placeholder="https://github.com/username"
+                className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none ${
+                  validationErrors.github_url ? 'border-red-500' : 'border-gray-200'
+                }`}
+              />
+              {validationErrors.github_url && (
+                <p className="mt-1 text-sm text-red-600">{validationErrors.github_url}</p>
+              )}
             </div>
           </section>
 
@@ -329,7 +417,7 @@ export default function ApplyPage() {
                     value={value}
                     onChange={handleChange}
                     rows={4}
-                    className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none ${
+                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none resize-none ${
                       hasError ? 'border-red-500' : 'border-gray-200'
                     }`}
                   />
@@ -370,7 +458,7 @@ export default function ApplyPage() {
                 setForm((f) => ({ ...f, resume: e.target.files?.[0] ?? null }))
                 if (validationErrors.resume) setValidationErrors((err) => ({ ...err, resume: '' }))
               }}
-              className={`w-full px-4 py-3 rounded-xl border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:font-medium cursor-pointer ${
+              className={`w-full px-4 py-3 rounded-xl border text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:font-medium cursor-pointer ${
                 validationErrors.resume ? 'border-red-500' : 'border-gray-200'
               }`}
             />
@@ -383,7 +471,7 @@ export default function ApplyPage() {
             <button
               type="submit"
               disabled={formLoading}
-              className="flex-1 px-6 py-4 rounded-2xl bg-purple-600 text-white font-medium hover:bg-purple-700 disabled:opacity-50 transition-colors"
+              className="flex-1 px-6 py-4 rounded-2xl bg-felicis-orange text-white font-medium hover:opacity-90 disabled:opacity-50 transition-colors"
             >
               {formLoading ? 'Submitting...' : 'Submit Application'}
             </button>

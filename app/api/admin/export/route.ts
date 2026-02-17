@@ -36,6 +36,7 @@ export async function GET(request: Request) {
     'email',
     'phone',
     'linkedin_url',
+    'github_url',
     'short_answer_1',
     'short_answer_2',
     'short_answer_3',
