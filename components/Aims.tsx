@@ -38,13 +38,9 @@ export const Aims = () => {
     <section id="aims" className="py-16 sm:py-20">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm font-medium tracking-widest text-gray-500 uppercase mb-2">
-            [What You&apos;ll Work On]
-          </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-2 tracking-tight">
-            VentureHacks
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-4 tracking-tight">
+            What You&apos;ll Work On
           </h2>
-          <h3 className="text-xl sm:text-2xl font-light text-gray-600 mb-4">Aims</h3>
           <p className="text-sm sm:text-base text-gray-500 font-light">
             Build toward one or more of these focus areas
           </p>

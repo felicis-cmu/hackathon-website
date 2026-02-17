@@ -1,13 +1,12 @@
 import { Container } from './ui/Container'
 
 const scheduleItems = [
-  { time: '12:45 PM', title: 'Doors Open',           description: 'Check in & find your team' },
-  { time: '1:00 PM',  title: 'Opening + Guest Speaker', description: 'Welcome from Felicis fellows' },
-  { time: '1:30 PM',  title: 'Hacking Starts',       description: '3.5 hours to build' },
-  { time: '3:00 PM',  title: 'Food',                 description: 'Catered lunch' },
-  { time: '5:00 PM',  title: 'Hacking Ends',         description: 'Finalize your pitch' },
-  { time: '5:15 PM',  title: 'Presentations',        description: 'All teams present' },
-  { time: '6:30 PM',  title: 'Awards & Closing',     description: 'Top teams invited to dinner' },
+  { time: '11:00 AM', title: 'Launch',               description: 'Kickoff & welcome' },
+  { time: '11:30 AM', title: 'Hacking Starts',       description: '7 hours to build' },
+  { time: '1:30 PM',  title: 'Lunch',               description: 'Catered meal' },
+  { time: '6:30 PM',  title: 'Hacking Ends',        description: 'Finalize your pitch' },
+  { time: '6:30–7:30 PM', title: 'Judging',          description: 'Teams present; dinner for participants' },
+  { time: '7:30–8:00 PM', title: 'Awards',           description: 'Top teams invited to dinner' },
 ]
 
 export const Schedule = () => {

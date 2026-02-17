@@ -26,7 +26,7 @@ const faqItems = [
   },
   {
     question: 'Do participants just ideate, or actually build something?',
-    answer: 'You build. VentureHacks is a hands-on hackathon—teams have 3.5 hours to create a functional prototype and present their work.',
+    answer: 'You build. VentureHacks is a hands-on hackathon—teams have 7 hours to create a functional prototype and present their work.',
   },
   {
     question: 'How many aims can I participate in?',

@@ -1,12 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { Container } from './ui/Container'
 
 export const Hero = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center py-16 relative overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center -mt-20 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-64 h-64 bg-gray-200 opacity-30 blur-3xl rounded-full"></div>
@@ -22,27 +21,14 @@ export const Hero = () => {
           </p>
 
           {/* Main Title */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 tracking-tight font-geist leading-none">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 tracking-tight font-dancing leading-none">
             VentureHacks
           </h1>
 
           {/* Presented By */}
-          <div className="flex items-center justify-center gap-6 sm:gap-8">
-            <Image
-              src="/logos/felicis.png"
-              alt="Felicis"
-              width={80}
-              height={80}
-              className="h-12 w-auto sm:h-16"
-            />
-            <Image
-              src="/logos/skild.webp"
-              alt="Skild AI"
-              width={120}
-              height={48}
-              className="h-8 w-auto sm:h-10"
-            />
-          </div>
+          <p className="text-sm sm:text-base md:text-lg font-light tracking-wide text-gray-600">
+            Presented by Felicis and Skild AI
+          </p>
 
           {/* Apply Button */}
           <Link
