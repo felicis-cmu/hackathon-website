@@ -4,8 +4,6 @@ import { Container } from './ui/Container'
 export const Footer = () => {
   return (
     <footer className="relative py-16 sm:py-20 overflow-hidden">
-      {/* Orange gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-orange-950/90" />
       {/* Watermark */}
       <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
         <span className="text-[12vw] sm:text-[10vw] font-bold text-white/5 tracking-tighter leading-none pb-4">

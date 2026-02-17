@@ -32,12 +32,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${plusJakartaSans.variable} ${dancingScript.variable} font-sans antialiased relative`}>
+      <body className={`${plusJakartaSans.variable} ${dancingScript.variable} font-sans antialiased`}>
         {/* App-wide gradient: stronger at edges, weaker at center */}
         <div
-          className="fixed inset-0 -z-30 pointer-events-none"
+          className="fixed inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(250,247,242,0.35) 0%, rgba(245,237,224,0.65) 25%, rgba(254,215,170,0.75) 50%, rgba(251,146,60,0.7) 75%, rgba(201,104,36,0.8) 100%)',
+            zIndex: -30,
+            background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(250,247,242,0.0) 0%, rgba(248,220,180,0.55) 35%, rgba(240,140,50,0.88) 65%, rgba(210,80,10,0.97) 85%, rgba(160,45,5,1.0) 100%)',
           }}
         />
         <AuthProvider>{children}</AuthProvider>

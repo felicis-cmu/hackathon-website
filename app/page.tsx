@@ -10,10 +10,10 @@ import { SwirlCanvas } from '@/components/SwirlCanvas'
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative z-0">
+    <main className="min-h-screen">
       <SwirlCanvas />
       <Header />
-      <div className="pt-20 relative z-0">
+      <div className="pt-20">
         <Hero />
         <Aims />
         <Prizes />

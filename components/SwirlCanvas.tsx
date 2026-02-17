@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 
-/* Darker orange / rust palette */
-const ORANGE_PRIMARY = { r: 166, g: 75, b: 11 } // #A64B0B
-const ORANGE_WARM = { r: 180, g: 90, b: 25 } // dark rust
+/* Deep burnt orange palette — no yellow push */
+const ORANGE_PRIMARY = { r: 185, g: 60, b: 5 }  // #B93C05 deep burnt orange
+const ORANGE_WARM   = { r: 210, g: 75, b: 10 }  // #D24B0A warm rust
 
 function floor(x: number) {
   return x | 0
@@ -281,11 +281,12 @@ export function SwirlCanvas() {
           const lifeRatio = age / ttl
           const speedFactor = Math.min(0.08 * Math.sqrt(nvx * nvx + nvy * nvy), 1)
           const blend = 0.4 * lifeRatio + 0.6 * speedFactor
-          const extra = 40 * Math.sin(lifeRatio * Math.PI)
-          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.4 * blend) + extra + 35 * speedFactor)))
-          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.3 * blend) + extra + 30 * speedFactor)))
-          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.5 * blend) + extra + 40 * speedFactor)))
-          const A = Math.min(255, Math.floor(alpha * 1.3))
+          // Minimal brightness boost — keep orange, not yellow
+          const extra = 8 * Math.sin(lifeRatio * Math.PI)
+          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.3 * blend) + extra + 18 * speedFactor)))
+          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.15 * blend) + extra +  6 * speedFactor)))
+          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.1  * blend)            +  3 * speedFactor)))
+          const A = Math.min(255, Math.floor(alpha * 1.1))
           const i = 4 * (ix + iy * width)
           o.data[i] = R
           o.data[i + 1] = G
@@ -296,18 +297,25 @@ export function SwirlCanvas() {
 
       offCtx!.putImageData(o, 0, 0)
 
-      // Fade for trails — cream tint to blend with gradient background
-      ctx.fillStyle = 'rgba(250, 247, 242, 0.12)'
-      ctx.fillRect(0, 0, width, height)
-
-      // Glow compositing — boosted for visibility
+      // Fade trails by reducing pixel alpha → transparent (reveals gradient behind)
       ctx.save()
-      ctx.filter = 'blur(3px) brightness(140%)'
-      ctx.globalAlpha = 0.85
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.16)'
+      ctx.fillRect(0, 0, width, height)
+      ctx.restore()
+
+      // Draw particles with soft glow
+      ctx.save()
+      ctx.filter = 'blur(2px) brightness(115%)'
+      ctx.globalAlpha = 0.9
       ctx.drawImage(offCtx!.canvas, 0, 0)
+      ctx.restore()
+
+      // Additive glow pass for ember effect
+      ctx.save()
       ctx.globalCompositeOperation = 'lighter'
-      ctx.filter = 'saturate(160%)'
-      ctx.globalAlpha = 0.65
+      ctx.filter = 'saturate(140%) blur(1px)'
+      ctx.globalAlpha = 0.45
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.restore()
 
