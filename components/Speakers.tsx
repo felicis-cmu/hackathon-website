@@ -13,10 +13,10 @@ export const Speakers = () => {
       details: 'Gain valuable insights from Skild experts on innovation and building impactful technology.'
     },
     {
-      title: 'Invitational Dinner',
-      description: 'Meet VCs & Network',
-      details: 'Exclusive opportunity to connect with venture capitalists in an intimate setting. Build relationships that can help grow your ideas into reality.'
-    }
+      title: 'Free Lunch',
+      description: 'Catered on us',
+      details: 'Fuel up mid-hack with a free catered lunch — so you can stay focused on building.'
+    },
   ]
 
   return (

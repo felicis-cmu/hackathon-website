@@ -45,11 +45,11 @@ export const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="glass-toolbar mx-auto mt-4 w-fit px-2 py-2">
         <div className="flex items-center gap-2 sm:gap-4">
-          <button 
+          <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
             className="flex items-center gap-2 px-3 py-1 hover:opacity-80 transition-opacity"
           >
-            <Image 
+            <Image
               src="/logos/felicis.png"
               alt="Felicis Logo"
               width={32}
@@ -63,37 +63,31 @@ export const Header = () => {
           </button>
 
           <div className="flex items-center gap-1">
-            <button 
-              onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
-              className={`glass-tab ${activeSection === 'home' ? 'glass-tab-active' : ''}`}
-            >
-              Home
-            </button>
-            <button 
+            <button
               onClick={() => scrollToSection('aims')}
               className={`glass-tab hidden sm:inline-flex ${activeSection === 'aims' ? 'glass-tab-active' : ''}`}
             >
               Aims
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('prizes')}
               className={`glass-tab ${activeSection === 'prizes' ? 'glass-tab-active' : ''}`}
             >
               Prizes
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('schedule')}
               className={`glass-tab hidden sm:inline-flex ${activeSection === 'schedule' ? 'glass-tab-active' : ''}`}
             >
               Schedule
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('faq')}
               className={`glass-tab hidden sm:inline-flex ${activeSection === 'faq' ? 'glass-tab-active' : ''}`}
             >
               FAQ
             </button>
-            <Link 
+            <Link
               href="/apply"
               className={`glass-tab ${pathname === '/apply' ? 'glass-tab-active' : ''}`}
             >

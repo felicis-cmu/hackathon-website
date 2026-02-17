@@ -1,17 +1,18 @@
 import type { Metadata } from 'next'
-import { IBM_Plex_Mono, Geist } from 'next/font/google'
+import { Plus_Jakarta_Sans, Dancing_Script } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
 
-const ibmPlexMono = IBM_Plex_Mono({ 
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-ibm-plex-mono',
-  weight: ['300', '400', '500', '600', '700']
+  variable: '--font-plus-jakarta-sans',
+  weight: ['300', '400', '500', '600', '700', '800'],
 })
 
-const geist = Geist({
+const dancingScript = Dancing_Script({
   subsets: ['latin'],
-  variable: '--font-geist',
+  variable: '--font-dancing-script',
+  weight: ['400', '700'],
 })
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${ibmPlexMono.variable} ${geist.variable} font-mono antialiased`}>
+      <body className={`${plusJakartaSans.variable} ${dancingScript.variable} font-sans antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

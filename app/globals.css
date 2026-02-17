@@ -3,22 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 17, 24, 39;
-  --background-rgb: 255, 255, 255;
-  --font-mono: var(--font-ibm-plex-mono);
+  --foreground-rgb: 28, 25, 23;
+  --background-rgb: 250, 247, 242;
+  --font-sans: var(--font-plus-jakarta-sans);
 
-  /* Liquid glass — tunable via LiquidGlassTuner */
+  /* Felicis brand */
+  --felicis-cream:   #FAF7F2;
+  --felicis-peach:   #F5EDE0;
+  --felicis-orange:  #C96824;
+  --felicis-text:    #1C1917;
+  --felicis-muted:   #6B5E52;
+  --felicis-border:  #E8DDD2;
+
+  /* Glass — warm-tinted */
   --glass-frost-blur: 14;
-  --glass-tint-opacity: 0.65;
+  --glass-tint-opacity: 0.72;
   --glass-inner-shadow-blur: 12;
   --glass-inner-shadow-spread: -6;
-  --glass-inner-shadow-opacity: 0.1;
-  --glass-border-opacity: 0.18;
-  --glass-specular-opacity: 0.2;
-  --glass-shimmer-opacity: 0.08;
+  --glass-inner-shadow-opacity: 0.08;
+  --glass-border-opacity: 0.22;
+  --glass-specular-opacity: 0.18;
+  --glass-shimmer-opacity: 0.06;
   --glass-toolbar-blur: 20;
   --glass-pill-frost-blur: 2;
-  --glass-pill-tint-opacity: 0.08;
+  --glass-pill-tint-opacity: 0.10;
   --glass-pill-inner-shadow-blur: 20;
   --glass-pill-inner-shadow-spread: -5;
 }
@@ -29,16 +37,10 @@ html {
 
 body {
   color: rgb(var(--foreground-rgb));
-  background:
-    linear-gradient(180deg, rgba(251, 146, 60, 0.12) 0%, rgba(249, 115, 22, 0.08) 55%, rgba(251, 146, 60, 0.1) 100%),
-    radial-gradient(1500px circle at 10% -10%, rgba(251, 146, 60, 0.16), transparent 72%),
-    radial-gradient(1300px circle at 90% 110%, rgba(249, 115, 22, 0.12), transparent 70%),
-    rgb(var(--background-rgb));
-  font-family: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: var(--felicis-cream);
+  font-family: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative;
-  isolation: isolate;
 }
 
 @layer utilities {
@@ -59,9 +61,9 @@ body {
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: filter, transform;
-  background: rgba(255, 255, 255, 0.75);
-  border: 0.5px solid rgba(138, 107, 75, var(--glass-border-opacity));
-  box-shadow: inset 0 0 20px -4px rgba(138, 107, 75, 0.08), 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: rgba(250, 247, 242, 0.88);
+  border: 0.5px solid rgba(201, 104, 36, 0.18);
+  box-shadow: inset 0 0 20px -4px rgba(201, 104, 36, 0.06), 0 8px 24px rgba(28, 25, 23, 0.10), 0 2px 8px rgba(28, 25, 23, 0.06);
 }
 
 /* Specular highlight — top light reflection */
@@ -161,8 +163,8 @@ body {
   transform: translateZ(0);
   backface-visibility: hidden;
   background: rgba(255, 255, 255, var(--glass-tint-opacity));
-  border: 0.5px solid rgba(138, 107, 75, var(--glass-border-opacity));
-  box-shadow: inset 0 0 calc(var(--glass-inner-shadow-blur) * 1px) calc(var(--glass-inner-shadow-spread) * 1px) rgba(138, 107, 75, var(--glass-inner-shadow-opacity)), 0 6px 18px rgba(0, 0, 0, 0.1);
+  border: 0.5px solid rgba(201, 104, 36, var(--glass-border-opacity));
+  box-shadow: inset 0 0 calc(var(--glass-inner-shadow-blur) * 1px) calc(var(--glass-inner-shadow-spread) * 1px) rgba(201, 104, 36, var(--glass-inner-shadow-opacity)), 0 4px 16px rgba(28, 25, 23, 0.08);
 }
 
 /* Glass floating button */
@@ -174,13 +176,13 @@ body {
   transform: translateZ(0);
   backface-visibility: hidden;
   transition: all 0.3s cubic-bezier(0.17, 0.67, 0.27, 1);
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: inset 0 0 12px -4px rgba(138, 107, 75, 0.12), 0 6px 16px rgba(0, 0, 0, 0.08);
+  background: rgba(250, 247, 242, 0.7);
+  box-shadow: inset 0 0 12px -4px rgba(201, 104, 36, 0.10), 0 4px 14px rgba(28, 25, 23, 0.08);
 }
 
 .glass-float-btn:hover {
-  border-color: rgba(138, 107, 75, 0.3);
-  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(201, 104, 36, 0.3);
+  background: rgba(250, 247, 242, 0.88);
 }
 
 /* Glass Shot Card — floating card overlay */
@@ -194,11 +196,11 @@ body {
   backface-visibility: hidden;
   will-change: filter, transform;
   background: rgba(255, 255, 255, var(--glass-tint-opacity));
-  border: 0.5px solid rgba(138, 107, 75, var(--glass-border-opacity));
+  border: 0.5px solid rgba(201, 104, 36, var(--glass-border-opacity));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 0 calc(var(--glass-inner-shadow-blur) * 1px) calc(var(--glass-inner-shadow-spread) * 1px) rgba(138, 107, 75, var(--glass-inner-shadow-opacity)),
-    0 6px 22px rgba(0, 0, 0, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 calc(var(--glass-inner-shadow-blur) * 1px) calc(var(--glass-inner-shadow-spread) * 1px) rgba(201, 104, 36, var(--glass-inner-shadow-opacity)),
+    0 4px 18px rgba(28, 25, 23, 0.07);
 }
 
 /* Specular highlight */
@@ -244,10 +246,10 @@ body {
   transform: translateZ(0);
   backface-visibility: hidden;
   background: rgba(255, 255, 255, var(--glass-tint-opacity));
-  border: 0.5px solid rgba(138, 107, 75, var(--glass-border-opacity));
+  border: 0.5px solid rgba(201, 104, 36, var(--glass-border-opacity));
   box-shadow:
-    inset 0 0 16px -8px rgba(138, 107, 75, var(--glass-inner-shadow-opacity)),
-    0 10px 28px rgba(0, 0, 0, 0.1);
+    inset 0 0 16px -8px rgba(201, 104, 36, var(--glass-inner-shadow-opacity)),
+    0 6px 22px rgba(28, 25, 23, 0.08);
 }
 
 /* Specular highlight */

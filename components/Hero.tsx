@@ -45,9 +45,9 @@ export const Hero = () => {
           </div>
 
           {/* Apply Button */}
-          <Link 
+          <Link
             href="/apply"
-            className="glass-context px-8 sm:px-12 py-3 sm:py-4 text-sm sm:text-base font-medium tracking-wide text-gray-900 hover:scale-105 transition-all ease-liquid duration-300 mt-4 uppercase"
+            className="px-8 sm:px-12 py-3 sm:py-4 text-sm sm:text-base font-medium tracking-wide text-gray-900 border border-gray-300 rounded-full hover:border-felicis-orange hover:text-felicis-orange transition-all duration-200 mt-4 uppercase"
           >
             Apply now
           </Link>
