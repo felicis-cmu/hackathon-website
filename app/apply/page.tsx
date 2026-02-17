@@ -118,6 +118,7 @@ export default function ApplyPage() {
   const [form, setForm] = useState(getInitialForm)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const formTopRef = useRef<HTMLDivElement>(null)
 
   const supabase = createClient()
 
@@ -214,7 +215,10 @@ export default function ApplyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
-    if (!validateForm()) return
+    if (!validateForm()) {
+      formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
 
     setFormLoading(true)
     setError(null)
@@ -346,10 +350,25 @@ export default function ApplyPage() {
           <p className="text-gray-600 mt-2">March 14, 2026</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form ref={formTopRef} onSubmit={handleSubmit} className="space-y-8" noValidate>
           {error && (
             <div className="p-4 rounded-2xl bg-red-50 text-red-700 border border-red-200">
               {error}
+            </div>
+          )}
+          {Object.keys(validationErrors).length > 0 && (
+            <div
+              role="alert"
+              className="p-4 rounded-2xl bg-red-50 text-red-700 border-2 border-red-300"
+            >
+              <p className="font-semibold mb-1">Please fix the following before submitting:</p>
+              <ul className="list-disc list-inside text-sm space-y-0.5">
+                {Object.entries(validationErrors).map(([field, msg]) => (
+                  <li key={field}>
+                    {FIELD_LABELS[field] ?? field}: {msg}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

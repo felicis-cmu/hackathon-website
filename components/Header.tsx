@@ -2,12 +2,10 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { Container } from './ui/Container'
 import { useState, useEffect } from 'react'
 
 export const Header = () => {
-  const pathname = usePathname()
   const [activeSection, setActiveSection] = useState('home')
 
   const scrollToSection = (id: string) => {
@@ -87,12 +85,6 @@ export const Header = () => {
             >
               FAQ
             </button>
-            <Link
-              href="/apply"
-              className={`glass-tab ${pathname?.startsWith('/apply') ? 'glass-tab-active' : ''}`}
-            >
-              Apply
-            </Link>
             <Link
               href="/apply/dashboard"
               className="glass-tab hidden sm:inline-flex"
