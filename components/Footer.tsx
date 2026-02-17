@@ -3,7 +3,7 @@ import { Container } from './ui/Container'
 
 export const Footer = () => {
   return (
-    <footer className="relative pt-8 pb-16 sm:pt-10 sm:pb-20 overflow-hidden">
+    <footer className="relative pt-2 pb-16 sm:pt-4 sm:pb-20 overflow-hidden">
       {/* Big VentureHacks watermark - bottom, Dancing Script, black */}
       <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
         <span className="font-dancing text-[12vw] sm:text-[10vw] font-bold text-black/10 tracking-tighter leading-none pb-4">

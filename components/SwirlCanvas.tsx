@@ -306,7 +306,7 @@ export function SwirlCanvas() {
 
       // Draw particles with soft glow
       ctx.save()
-      ctx.filter = 'blur(2px) brightness(115%)'
+      ctx.filter = 'blur(0.5px) brightness(115%)'
       ctx.globalAlpha = 0.9
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.restore()
@@ -314,7 +314,7 @@ export function SwirlCanvas() {
       // Additive glow pass for ember effect
       ctx.save()
       ctx.globalCompositeOperation = 'lighter'
-      ctx.filter = 'saturate(140%) blur(1px)'
+      ctx.filter = 'saturate(140%) blur(0.25px)'
       ctx.globalAlpha = 0.45
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.restore()
