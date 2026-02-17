@@ -2,18 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 
-/* Soft Warm Champagne palette */
-const CHAMPAGNE_PRIMARY = { r: 232, g: 222, b: 211 } // #E8DED3
-const CHAMPAGNE_SECONDARY = { r: 220, g: 207, b: 195 } // #DCCFC3
-const CHAMPAGNE_BLUR = 'rgba(222, 210, 196, 0.4)' // blur layers
-
-const S = 1 / 3
-const I = 1 / 6
-const GRADIENTS = new Float64Array([
-  1, 1, 0, -1, 1, 0, 1, -1, 0, -1, -1, 0,
-  1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, -1,
-  0, 1, 1, 0, -1, 1, 0, 1, -1, 0, -1, -1,
-])
+/* Darker orange / rust palette */
+const ORANGE_PRIMARY = { r: 166, g: 75, b: 11 } // #A64B0B
+const ORANGE_WARM = { r: 180, g: 90, b: 25 } // dark rust
 
 function floor(x: number) {
   return x | 0
@@ -49,56 +40,89 @@ class ParticleStore {
   }
 }
 
-function simplex3D(perm: Uint8Array, gradR: Float64Array, gradG: Float64Array, gradB: Float64Array) {
-  return (x: number, y: number, z: number): number => {
-    const skew = (x + y + z) * S
-    const i = floor(x + skew)
-    const j = floor(y + skew)
-    const k = floor(z + skew)
-    const unskew = (i + j + k) * I
-    const X = x - (i - unskew)
-    const Y = y - (j - unskew)
-    const Z = z - (k - unskew)
+/** 3D Simplex noise — returns value in ~[-1, 1] for organic swirl direction */
+function createSimplex(seed = Math.random) {
+  const p = new Uint8Array(512)
+  for (let i = 0; i < 256; i++) p[i] = i
+  for (let i = 255; i > 0; i--) {
+    const j = ~~(seed() * (i + 1))
+    ;[p[i], p[j]] = [p[j], p[i]]
+  }
+  for (let i = 256; i < 512; i++) p[i] = p[i - 256]
 
-    const i1 = X >= Y ? (Y >= Z ? [1, 0, 0] : X >= Z ? [1, 0, 0] : [0, 0, 1]) : Y < Z ? [0, 0, 1] : X < Z ? [0, 1, 0] : [0, 1, 0]
-    const j1 = X >= Y ? (Y >= Z ? [1, 1, 0] : X >= Z ? [1, 0, 1] : [0, 1, 1]) : Y < Z ? [0, 1, 1] : X < Z ? [0, 1, 1] : [1, 1, 0]
-    const k1 = X >= Y ? (Y >= Z ? [1, 1, 1] : X >= Z ? [1, 1, 1] : [0, 1, 1]) : Y < Z ? [0, 1, 1] : X < Z ? [1, 1, 1] : [1, 1, 1]
+  const grad3 = [
+    [1, 1, 0], [-1, 1, 0], [1, -1, 0], [-1, -1, 0],
+    [1, 0, 1], [-1, 0, 1], [1, 0, -1], [-1, 0, -1],
+    [0, 1, 1], [0, -1, 1], [0, 1, -1], [0, -1, -1],
+  ]
+
+  return (x: number, y: number, z: number): number => {
+    const F3 = 1 / 3
+    const s = (x + y + z) * F3
+    const i = floor(x + s)
+    const j = floor(y + s)
+    const k = floor(z + s)
+    const G3 = 1 / 6
+    const t = (i + j + k) * G3
+    const X0 = x - i + t
+    const Y0 = y - j + t
+    const Z0 = z - k + t
+
+    let i1: number, j1: number, k1
+    let i2: number, j2: number, k2
+    if (X0 >= Y0) {
+      if (Y0 >= Z0) {
+        i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0
+      } else if (X0 >= Z0) {
+        i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 0; k2 = 1
+      } else {
+        i1 = 0; j1 = 0; k1 = 1; i2 = 1; j2 = 0; k2 = 1
+      }
+    } else {
+      if (Y0 < Z0) {
+        i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1
+      } else if (X0 < Z0) {
+        i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1
+      } else {
+        i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0
+      }
+    }
 
     const ii = i & 255
     const jj = j & 255
     const kk = k & 255
 
-    const contrib = (dx: number, dy: number, dz: number): number => {
-      const t = 0.6 - dx * dx - dy * dy - dz * dz
+    const dot = (g: number[], x: number, y: number, z: number) => g[0] * x + g[1] * y + g[2] * z
+
+    const contrib = (x: number, y: number, z: number, gi: number): number => {
+      const t = 0.6 - x * x - y * y - z * z
       if (t < 0) return 0
-      const gi = perm[ii + dx + perm[jj + dy + perm[kk + dz]]] % 12
       const t2 = t * t
-      return t2 * t2 * (GRADIENTS[gi * 3] * dx + GRADIENTS[gi * 3 + 1] * dy + GRADIENTS[gi * 3 + 2] * dz)
+      return t2 * t2 * dot(grad3[gi], x, y, z)
     }
 
+    const gi0 = p[ii + p[jj + p[kk]]] % 12
+    const gi1 = p[ii + i1 + p[jj + j1 + p[kk + k1]]] % 12
+    const gi2 = p[ii + i2 + p[jj + j2 + p[kk + k2]]] % 12
+    const gi3 = p[ii + 1 + p[jj + 1 + p[kk + 1]]] % 12
+
+    const x1 = X0 - i1 + G3
+    const y1 = Y0 - j1 + G3
+    const z1 = Z0 - k1 + G3
+    const x2 = X0 - i2 + 2 * G3
+    const y2 = Y0 - j2 + 2 * G3
+    const z2 = Z0 - k2 + 2 * G3
+    const x3 = X0 - 1 + 3 * G3
+    const y3 = Y0 - 1 + 3 * G3
+    const z3 = Z0 - 1 + 3 * G3
+
     return 32 * (
-      contrib(X, Y, Z) +
-      contrib(X - i1[0] + I, Y - i1[1] + I, Z - i1[2] + I) +
-      contrib(X - j1[0] + 2 * I, Y - j1[1] + 2 * I, Z - j1[2] + 2 * I) +
-      contrib(X - 1 + 3 * I, Y - 1 + 3 * I, Z - 1 + 3 * I)
+      contrib(X0, Y0, Z0, gi0) +
+      contrib(x1, y1, z1, gi1) +
+      contrib(x2, y2, z2, gi2) +
+      contrib(x3, y3, z3, gi3)
     )
   }
-}
-
-function createSimplex(seed = Math.random) {
-  const perm = new Uint8Array(512)
-  for (let i = 0; i < 256; i++) perm[i] = i
-  for (let i = 0; i < 255; i++) {
-    const j = i + ~~(seed() * (256 - i))
-    ;[perm[i], perm[j]] = [perm[j], perm[i]]
-  }
-  for (let i = 256; i < 512; i++) perm[i] = perm[i - 256]
-
-  const gradR = new Float64Array(perm).map((_, i) => GRADIENTS[(perm[i] % 12) * 3])
-  const gradG = new Float64Array(perm).map((_, i) => GRADIENTS[(perm[i] % 12) * 3 + 1])
-  const gradB = new Float64Array(perm).map((_, i) => GRADIENTS[(perm[i] % 12) * 3 + 2])
-
-  return simplex3D(perm, gradR, gradG, gradB)
 }
 
 function triangleWave(age: number, ttl: number): number {
@@ -153,10 +177,10 @@ export function SwirlCanvas() {
       1
     )
 
-    // Champagne palette: subtle variations between #E8DED3 and #DCCFC3
-    const r = Math.floor(CHAMPAGNE_PRIMARY.r - 20 * dist + rand(15))
-    const g = Math.floor(CHAMPAGNE_PRIMARY.g - 15 * dist + rand(12))
-    const b = Math.floor(CHAMPAGNE_SECONDARY.b - 10 * dist + rand(10))
+    // Orange palette: Felicis orange with warm variations
+    const r = Math.floor(ORANGE_PRIMARY.r + (ORANGE_WARM.r - ORANGE_PRIMARY.r) * dist + rand(25))
+    const g = Math.floor(ORANGE_PRIMARY.g + (ORANGE_WARM.g - ORANGE_PRIMARY.g) * dist + rand(20))
+    const b = Math.floor(ORANGE_PRIMARY.b + (ORANGE_WARM.b - ORANGE_PRIMARY.b) * dist + rand(15))
 
     return [x, y, 0, 0, 0, 0, ttl, vc, r, g, b]
   }
@@ -257,11 +281,11 @@ export function SwirlCanvas() {
           const lifeRatio = age / ttl
           const speedFactor = Math.min(0.08 * Math.sqrt(nvx * nvx + nvy * nvy), 1)
           const blend = 0.4 * lifeRatio + 0.6 * speedFactor
-          const extra = 30 * Math.sin(lifeRatio * Math.PI)
-          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.3 * blend) + extra + 25 * speedFactor)))
-          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.2 * blend) + extra + 20 * speedFactor)))
-          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.4 * blend) + extra + 30 * speedFactor)))
-          const A = alpha
+          const extra = 40 * Math.sin(lifeRatio * Math.PI)
+          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.4 * blend) + extra + 35 * speedFactor)))
+          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.3 * blend) + extra + 30 * speedFactor)))
+          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.5 * blend) + extra + 40 * speedFactor)))
+          const A = Math.min(255, Math.floor(alpha * 1.3))
           const i = 4 * (ix + iy * width)
           o.data[i] = R
           o.data[i + 1] = G
@@ -272,18 +296,18 @@ export function SwirlCanvas() {
 
       offCtx!.putImageData(o, 0, 0)
 
-      // Fade for trails — use champagne-tinted fade instead of black
-      ctx.fillStyle = CHAMPAGNE_BLUR
+      // Fade for trails — cream tint to blend with gradient background
+      ctx.fillStyle = 'rgba(250, 247, 242, 0.12)'
       ctx.fillRect(0, 0, width, height)
 
-      // Glow compositing — softer for premium champagne look
+      // Glow compositing — boosted for visibility
       ctx.save()
-      ctx.filter = 'blur(4px) brightness(110%)'
-      ctx.globalAlpha = 0.6
+      ctx.filter = 'blur(3px) brightness(140%)'
+      ctx.globalAlpha = 0.85
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.globalCompositeOperation = 'lighter'
-      ctx.filter = 'saturate(120%)'
-      ctx.globalAlpha = 0.4
+      ctx.filter = 'saturate(160%)'
+      ctx.globalAlpha = 0.65
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.restore()
 
@@ -314,7 +338,7 @@ export function SwirlCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none z-0"
+      className="fixed inset-0 w-full h-full pointer-events-none -z-10"
       style={{ background: 'transparent' }}
       aria-hidden
     />
