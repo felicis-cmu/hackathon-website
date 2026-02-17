@@ -89,9 +89,15 @@ export const Header = () => {
             </button>
             <Link
               href="/apply"
-              className={`glass-tab ${pathname === '/apply' ? 'glass-tab-active' : ''}`}
+              className={`glass-tab ${pathname?.startsWith('/apply') ? 'glass-tab-active' : ''}`}
             >
               Apply
+            </Link>
+            <Link
+              href="/apply/dashboard"
+              className="glass-tab hidden sm:inline-flex"
+            >
+              Dashboard
             </Link>
           </div>
         </div>

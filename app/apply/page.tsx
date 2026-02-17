@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
 import { CustomSelect } from '@/components/ui/CustomSelect'
+import { SwirlCanvas } from '@/components/SwirlCanvas'
 
 const DRAFT_KEY = (userId: string) => `venturehacks-apply-draft-${userId}`
 
@@ -85,9 +86,33 @@ const MCQ_QUESTIONS = [
   },
 ]
 
+const FIELD_LABELS: Record<string, string> = {
+  full_name: 'Full Name',
+  email: 'Email',
+  phone: 'Phone',
+  linkedin_url: 'LinkedIn URL',
+  github_url: 'GitHub URL',
+  short_answer_1: 'Question 1',
+  short_answer_2: 'Question 2',
+  short_answer_3: 'Question 3',
+  short_answer_4: 'Question 4',
+  mcq_experience: 'Hackathon experience',
+  mcq_team: 'Team status',
+  mcq_focus: 'Focus area',
+  resume: 'Resume',
+}
+
+function getSectionErrors(
+  errors: Record<string, string>,
+  fields: string[]
+): { field: string; label: string; message: string }[] {
+  return fields
+    .filter((f) => errors[f])
+    .map((f) => ({ field: f, label: FIELD_LABELS[f] ?? f, message: errors[f] }))
+}
+
 export default function ApplyPage() {
   const { user, loading, signInWithGoogle } = useAuth()
-  const [submitted, setSubmitted] = useState(false)
   const [formLoading, setFormLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState(getInitialForm)
@@ -145,10 +170,11 @@ export default function ApplyPage() {
     return data
   }
 
+  const [hasApplication, setHasApplication] = useState(false)
   useEffect(() => {
     if (user) {
       checkExistingApplication().then((data) => {
-        if (data) setSubmitted(true)
+        if (data) setHasApplication(true)
       })
     }
   }, [user])
@@ -233,7 +259,7 @@ export default function ApplyPage() {
 
       if (insertError) throw insertError
       clearDraft(user.id)
-      setSubmitted(true)
+      window.location.href = '/apply/dashboard'
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -243,17 +269,22 @@ export default function ApplyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse text-gray-500">Loading...</div>
+      <>
+        <SwirlCanvas />
+        <div className="min-h-screen flex items-center justify-center relative z-10">
+          <div className="text-center">
+            <div className="animate-pulse text-gray-500">Loading...</div>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <>
+        <SwirlCanvas />
+        <div className="min-h-screen flex items-center justify-center px-4 relative z-10">
         <div className="max-w-md w-full text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Apply to VentureHacks</h1>
           <p className="text-gray-600 mb-8">
@@ -278,31 +309,36 @@ export default function ApplyPage() {
           </p>
         </div>
       </div>
+      </>
     )
   }
 
-  if (submitted) {
+  if (hasApplication) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center">
-          <div className="text-6xl mb-4">✓</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted</h1>
-          <p className="text-gray-600 mb-8">
-            Thanks for applying to VentureHacks! We&apos;ll review your application and get back to you soon.
-          </p>
-          <Link
-            href="/"
-            className="inline-block px-6 py-3 rounded-2xl bg-gray-900 text-white font-medium hover:bg-gray-800 transition-colors"
-          >
-            Back to home
-          </Link>
+      <>
+        <SwirlCanvas />
+        <div className="min-h-screen flex items-center justify-center px-4 relative z-10">
+          <div className="max-w-md w-full text-center">
+            <p className="text-gray-600 mb-6">You&apos;ve already submitted an application.</p>
+            <Link
+              href="/apply/dashboard"
+              className="inline-block px-6 py-3 rounded-2xl bg-felicis-orange text-white font-medium hover:opacity-90 transition-colors"
+            >
+              View Dashboard
+            </Link>
+            <p className="mt-6 text-sm text-gray-500">
+              <Link href="/" className="text-felicis-orange hover:underline">← Back to home</Link>
+            </p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <>
+      <SwirlCanvas />
+      <div className="min-h-screen py-12 px-4 relative z-10">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <Link href="/" className="text-felicis-orange hover:underline text-sm">← Back to home</Link>
@@ -319,6 +355,13 @@ export default function ApplyPage() {
 
           <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Basic Information</h2>
+            {getSectionErrors(validationErrors, ['full_name', 'email', 'phone', 'linkedin_url', 'github_url']).length > 0 && (
+              <p className="text-sm text-red-600">
+                {getSectionErrors(validationErrors, ['full_name', 'email', 'phone', 'linkedin_url', 'github_url'])
+                  .map((e) => `${e.label}: ${e.message}`)
+                  .join(' • ')}
+              </p>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
@@ -404,6 +447,13 @@ export default function ApplyPage() {
 
           <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Short Answers</h2>
+            {getSectionErrors(validationErrors, ['short_answer_1', 'short_answer_2', 'short_answer_3', 'short_answer_4']).length > 0 && (
+              <p className="text-sm text-red-600">
+                {getSectionErrors(validationErrors, ['short_answer_1', 'short_answer_2', 'short_answer_3', 'short_answer_4'])
+                  .map((e) => `${e.label}: ${e.message}`)
+                  .join(' • ')}
+              </p>
+            )}
             <p className="text-sm text-gray-600 mb-4">{SHORT_ANSWERS_INTRO}</p>
             {SHORT_QUESTIONS.map((q, i) => {
               const key = `short_answer_${i + 1}` as keyof typeof form
@@ -431,6 +481,13 @@ export default function ApplyPage() {
 
           <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Multiple Choice</h2>
+            {getSectionErrors(validationErrors, ['mcq_experience', 'mcq_team', 'mcq_focus']).length > 0 && (
+              <p className="text-sm text-red-600">
+                {getSectionErrors(validationErrors, ['mcq_experience', 'mcq_team', 'mcq_focus'])
+                  .map((e) => `${e.label}: ${e.message}`)
+                  .join(' • ')}
+              </p>
+            )}
             {MCQ_QUESTIONS.map((q) => (
               <div key={q.id}>
                 <CustomSelect
@@ -450,6 +507,9 @@ export default function ApplyPage() {
 
           <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Resume *</h2>
+            {validationErrors.resume && (
+              <p className="text-sm text-red-600">Resume: {validationErrors.resume}</p>
+            )}
             <p className="text-sm text-gray-600">Upload your resume (PDF, PNG, or JPG, max 5MB)</p>
             <input
               type="file"
@@ -479,5 +539,6 @@ export default function ApplyPage() {
         </form>
       </div>
     </div>
+    </>
   )
 }
