@@ -15,7 +15,7 @@ export const Footer = () => {
         <div className="relative z-10 flex flex-col items-start text-left">
           {/* Logo + Branding - left justified */}
           <div className="flex items-center gap-4 mb-6">
-            <Image src="/logos/felicis.png" alt="Felicis" width={48} height={48} className="h-12 w-12" />
+            <Image src="/logos/venture.png" alt="VentureHacks" width={48} height={48} className="h-12 w-12" />
           </div>
           <p className="text-gray-800 text-sm sm:text-base mb-6">
             Pittsburgh&apos;s hackathon powered by Felicis & Skild AI

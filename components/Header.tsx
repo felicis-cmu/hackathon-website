@@ -48,7 +48,7 @@ export const Header = () => {
             className="flex items-center gap-2 px-3 py-1 hover:opacity-80 transition-opacity"
           >
             <Image
-              src="/logos/felicis.png"
+              src="/logos/venture.png"
               alt="Felicis Logo"
               width={32}
               height={32}

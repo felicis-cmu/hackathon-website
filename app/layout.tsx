@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   description: 'Join us for VentureHacks on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
   keywords: ['hackathon', 'venturehacks', 'venture capital', 'technology', 'competition', 'felicis'],
   icons: {
-    icon: '/logos/felicis.png',
-    apple: '/logos/felicis.png',
+    icon: '/logos/venture.png',
+    apple: '/logos/venture.png',
   },
 }
 
