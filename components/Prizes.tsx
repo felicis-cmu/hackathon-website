@@ -1,6 +1,6 @@
 import { Container } from './ui/Container'
 
-const prizes = [
+const topPrizes = [
   {
     place: '1st',
     amount: '$2,500',
@@ -27,6 +27,11 @@ const prizes = [
   },
 ]
 
+const runnerUps = [
+  { place: '4th', amount: 'Clash Royale Pass Royale', desc: 'Per team member' },
+  { place: '5th', amount: 'Clash Royale Pass Royale', desc: 'Per team member' },
+]
+
 export const Prizes = () => {
   return (
     <section id="prizes" className="py-16 sm:py-20 border-t border-stone-200">
@@ -39,12 +44,12 @@ export const Prizes = () => {
             Compete & Win
           </h2>
           <p className="text-base sm:text-lg text-stone-500 font-light">
-            Top 3 teams meet Felicis partners and take home incredible prizes
+            Top teams meet Felicis partners and take home incredible prizes
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {prizes.map((prize) => (
+          {topPrizes.map((prize) => (
             <div
               key={prize.place}
               style={{ backgroundColor: prize.bg, borderColor: prize.border }}
@@ -65,6 +70,12 @@ export const Prizes = () => {
             </div>
           ))}
         </div>
+
+        {/* Runner-up prizes as a single text line */}
+        <p className="mt-8 text-sm text-stone-500 text-center max-w-4xl mx-auto">
+          <span className="font-semibold text-gray-700">4th &amp; 5th Place</span>
+          {' — '}Clash Royale Pass Royale (Per team member)
+        </p>
       </Container>
     </section>
   )
