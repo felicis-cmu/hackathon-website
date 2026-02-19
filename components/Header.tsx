@@ -15,7 +15,7 @@ export const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['aims', 'prizes', 'schedule', 'faq']
+      const sections = ['about', 'prizes', 'schedule', 'faq']
       const scrollPosition = window.scrollY + 100
 
       if (scrollPosition < 100) {
@@ -62,10 +62,10 @@ export const Header = () => {
 
           <div className="flex items-center gap-1">
             <button
-              onClick={() => scrollToSection('aims')}
-              className={`glass-tab hidden sm:inline-flex ${activeSection === 'aims' ? 'glass-tab-active' : ''}`}
+              onClick={() => scrollToSection('about')}
+              className={`glass-tab hidden sm:inline-flex ${activeSection === 'about' ? 'glass-tab-active' : ''}`}
             >
-              Aims
+              About
             </button>
             <button
               onClick={() => scrollToSection('prizes')}

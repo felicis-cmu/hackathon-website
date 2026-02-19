@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Cormorant_Garamond } from 'next/font/google'
+import { Plus_Jakarta_Sans, Cormorant_Garamond, DM_Mono } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
 
@@ -14,6 +14,12 @@ const cormorantGaramond = Cormorant_Garamond({
   variable: '--font-cormorant',
   weight: ['300', '400', '500', '600', '700'],
   style: ['normal', 'italic'],
+})
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  variable: '--font-dm-mono',
+  weight: ['300', '400', '500'],
 })
 
 export const metadata: Metadata = {
@@ -33,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${plusJakartaSans.variable} ${cormorantGaramond.variable} font-sans antialiased`}>
+      <body className={`${plusJakartaSans.variable} ${cormorantGaramond.variable} ${dmMono.variable} font-sans antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

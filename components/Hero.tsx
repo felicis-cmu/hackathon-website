@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Container } from './ui/Container'
+import { SwirlCanvas } from './SwirlCanvas'
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 
 const EVENT_DATE = new Date('2026-03-14T11:00:00')
@@ -62,9 +63,10 @@ function FlipDigit({ value }: { value: string }) {
     display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
   }
   const digit: CSSProperties = {
-    fontSize: FS, fontWeight: 700,
+    fontSize: FS, fontWeight: 500,
     lineHeight: `${H}px`,
     color: '#1C1917',
+    fontFamily: 'var(--font-dm-mono), monospace',
     fontVariantNumeric: 'tabular-nums',
     userSelect: 'none',
   }
@@ -143,6 +145,7 @@ export const Hero = () => {
 
   return (
     <section className="min-h-screen flex items-center justify-center -mt-20 relative overflow-hidden">
+      <SwirlCanvas />
       <Container>
         <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8 sm:space-y-10">
 

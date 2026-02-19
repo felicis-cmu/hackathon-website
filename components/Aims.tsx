@@ -20,11 +20,11 @@ const aims = [
 
 export const Aims = () => {
   return (
-    <section id="aims" className="py-16 sm:py-20 border-t border-stone-200">
+    <section id="about" className="py-16 sm:py-20 border-t border-stone-200">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#ED843D' }}>
-            01 — Focus Areas
+            01 — About
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-4 tracking-tight">
             What You&apos;ll Work On

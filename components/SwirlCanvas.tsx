@@ -247,7 +247,7 @@ export function SwirlCanvas() {
     offscreenRef.current = document.createElement('canvas').getContext('2d')
     noiseRef.current = createSimplex()
     resize()
-    particlesRef.current = new ParticleStore(3500, PROPS.length)
+    particlesRef.current = new ParticleStore(5500, PROPS.length)
     particlesRef.current.map(() => spawn())
 
     const ctx = canvas.getContext('2d')!
@@ -286,7 +286,7 @@ export function SwirlCanvas() {
           const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.08 * blend) + extra)))
           const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.05 * blend) + extra)))
           const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.04 * blend) + extra)))
-          const A = Math.min(255, Math.floor(alpha * 0.55))
+          const A = Math.min(255, Math.floor(alpha * 0.85))
           const i = 4 * (ix + iy * width)
           o.data[i] = R
           o.data[i + 1] = G
@@ -307,7 +307,7 @@ export function SwirlCanvas() {
       // Draw particles — soft, no glow
       ctx.save()
       ctx.filter = 'blur(0.4px)'
-      ctx.globalAlpha = 0.55
+      ctx.globalAlpha = 0.75
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.restore()
 
@@ -338,7 +338,7 @@ export function SwirlCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none -z-10"
+      className="absolute inset-0 w-full h-full pointer-events-none -z-10"
       style={{ background: 'transparent' }}
       aria-hidden
     />

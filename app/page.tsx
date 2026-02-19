@@ -6,12 +6,9 @@ import { Schedule } from '@/components/Schedule'
 import { Speakers } from '@/components/Speakers'
 import { FAQ } from '@/components/FAQ'
 import { Footer } from '@/components/Footer'
-import { SwirlCanvas } from '@/components/SwirlCanvas'
-
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <SwirlCanvas />
       <Header />
       <div className="pt-20">
         <Hero />
