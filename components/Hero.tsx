@@ -7,9 +7,8 @@ import { useState, useEffect, useRef, CSSProperties } from 'react'
 
 const EVENT_DATE = new Date('2026-03-14T11:00:00')
 
-const W = 50   // card width px
-const H = 68   // card height px
-const FS = 40  // font size px
+const W = 50;   const H = 68;   const FS = 40   // desktop
+const WS = 36;  const HS = 50;  const FSS = 28  // mobile small
 
 function useCountdown() {
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -31,12 +30,16 @@ function useCountdown() {
   return t
 }
 
-function FlipDigit({ value }: { value: string }) {
+function FlipDigit({ value, small }: { value: string; small?: boolean }) {
   const [current, setCurrent] = useState(value)
   const [prev, setPrev]       = useState(value)
   const [phase, setPhase]     = useState<'idle' | 'away' | 'in'>('idle')
   const t1 = useRef<ReturnType<typeof setTimeout>>()
   const t2 = useRef<ReturnType<typeof setTimeout>>()
+
+  const w = small ? WS : W
+  const h = small ? HS : H
+  const fs = small ? FSS : FS
 
   useEffect(() => {
     if (value === current) return
@@ -63,8 +66,8 @@ function FlipDigit({ value }: { value: string }) {
     display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
   }
   const digit: CSSProperties = {
-    fontSize: FS, fontWeight: 500,
-    lineHeight: `${H}px`,
+    fontSize: fs, fontWeight: 500,
+    lineHeight: `${h}px`,
     color: '#1C1917',
     fontFamily: 'var(--font-dm-mono), monospace',
     fontVariantNumeric: 'tabular-nums',
@@ -72,50 +75,29 @@ function FlipDigit({ value }: { value: string }) {
   }
 
   return (
-    <div style={{ position: 'relative', width: W, height: H, perspective: '400px' }}>
-      {/* Card shadow/border */}
+    <div style={{ position: 'relative', width: w, height: h, perspective: '400px' }}>
       <div style={{
         position: 'absolute', inset: 0, borderRadius: 6,
         border: '1px solid #DDD9D4',
         boxShadow: '0 6px 18px rgba(15,25,35,0.12), 0 1px 4px rgba(15,25,35,0.06)',
         pointerEvents: 'none', zIndex: 0,
       }} />
-
-      {/* Static bottom — always new digit */}
       <div style={halfBot}>
-        <span style={{ ...digit, marginTop: `${-H / 2}px` }}>{current}</span>
+        <span style={{ ...digit, marginTop: `${-h / 2}px` }}>{current}</span>
       </div>
-
-      {/* Static top — new digit (visible once flap lifts) */}
       <div style={halfTop}>
-        <span style={{ ...digit, marginBottom: `${-H / 2}px` }}>{current}</span>
+        <span style={{ ...digit, marginBottom: `${-h / 2}px` }}>{current}</span>
       </div>
-
-      {/* Flap: top half of PREVIOUS digit flipping away */}
       {(phase === 'away') && (
-        <div style={{
-          ...halfTop,
-          transformOrigin: 'center bottom',
-          animation: 'flipTopAway 0.27s ease-in forwards',
-          zIndex: 8,
-        }}>
-          <span style={{ ...digit, marginBottom: `${-H / 2}px` }}>{prev}</span>
+        <div style={{ ...halfTop, transformOrigin: 'center bottom', animation: 'flipTopAway 0.27s ease-in forwards', zIndex: 8 }}>
+          <span style={{ ...digit, marginBottom: `${-h / 2}px` }}>{prev}</span>
         </div>
       )}
-
-      {/* Flap: bottom half of NEW digit flipping in */}
       {(phase === 'in') && (
-        <div style={{
-          ...halfBot,
-          transformOrigin: 'center top',
-          animation: 'flipBottomIn 0.27s ease-out forwards',
-          zIndex: 8,
-        }}>
-          <span style={{ ...digit, marginTop: `${-H / 2}px` }}>{current}</span>
+        <div style={{ ...halfBot, transformOrigin: 'center top', animation: 'flipBottomIn 0.27s ease-out forwards', zIndex: 8 }}>
+          <span style={{ ...digit, marginTop: `${-h / 2}px` }}>{current}</span>
         </div>
       )}
-
-      {/* Center fold line */}
       <div style={{
         position: 'absolute', top: '50%', left: 0, right: 0,
         height: '1px', background: 'rgba(15,25,35,0.09)',
@@ -125,15 +107,15 @@ function FlipDigit({ value }: { value: string }) {
   )
 }
 
-function FlipUnit({ value, label }: { value: number; label: string }) {
+function FlipUnit({ value, label, small }: { value: number; label: string; small?: boolean }) {
   const s = String(value).padStart(2, '0')
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex gap-1">
-        <FlipDigit value={s[0]} />
-        <FlipDigit value={s[1]} />
+        <FlipDigit value={s[0]} small={small} />
+        <FlipDigit value={s[1]} small={small} />
       </div>
-      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-stone-400">
+      <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-widest text-stone-400">
         {label}
       </span>
     </div>
@@ -160,8 +142,14 @@ export const Hero = () => {
             VentureHacks
           </h1>
 
-          {/* Flip clock */}
-          <div className="flex items-end gap-3 sm:gap-5">
+          {/* Flip clock — mobile: 2×2 grid, desktop: single row */}
+          <div className="sm:hidden grid grid-cols-2 gap-x-6 gap-y-4 justify-items-center">
+            <FlipUnit value={days}    label="Days"  small />
+            <FlipUnit value={hours}   label="Hours" small />
+            <FlipUnit value={minutes} label="Min"   small />
+            <FlipUnit value={seconds} label="Sec"   small />
+          </div>
+          <div className="hidden sm:flex items-end gap-5">
             <FlipUnit value={days}    label="Days" />
             <span className="text-3xl text-stone-200 font-light pb-6 select-none">:</span>
             <FlipUnit value={hours}   label="Hours" />
