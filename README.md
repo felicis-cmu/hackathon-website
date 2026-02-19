@@ -1,5 +1,7 @@
 # VentureHack Website
 
+![VentureHacks Overview](public/overview.png)
+
 A modern, responsive website for VentureHack on March 14, built with Next.js 14, TypeScript, and Tailwind CSS. Sponsored by Felicis Ventures.
 
 ## Features
