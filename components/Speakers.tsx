@@ -26,7 +26,7 @@ export const Speakers = () => {
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#ED843D' }}>
             04 — Speakers
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-3 sm:mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold font-sans text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Speakers & Activities
           </h2>
           <p className="text-base sm:text-lg text-stone-500 max-w-2xl mx-auto px-4 font-light">

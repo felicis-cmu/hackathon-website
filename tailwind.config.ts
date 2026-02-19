@@ -11,6 +11,7 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-plus-jakarta-sans)', 'sans-serif'],
         serif: ['var(--font-cormorant)', 'Georgia', 'serif'],
+        instrument: ['var(--font-instrument)', 'Georgia', 'serif'],
       },
       colors: {
         'felicis-orange':       '#ED843D',

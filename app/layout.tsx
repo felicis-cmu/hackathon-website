@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Cormorant_Garamond, DM_Mono } from 'next/font/google'
+import { Plus_Jakarta_Sans, Cormorant_Garamond, DM_Mono, Instrument_Serif } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
 
@@ -22,6 +22,13 @@ const dmMono = DM_Mono({
   weight: ['300', '400', '500'],
 })
 
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  variable: '--font-instrument',
+  weight: '400',
+  style: ['normal', 'italic'],
+})
+
 export const metadata: Metadata = {
   title: 'VentureHacks - March 14',
   description: 'Join us for VentureHacks on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
@@ -39,7 +46,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${plusJakartaSans.variable} ${cormorantGaramond.variable} ${dmMono.variable} font-sans antialiased`}>
+      <body className={`${plusJakartaSans.variable} ${cormorantGaramond.variable} ${dmMono.variable} ${instrumentSerif.variable} font-sans antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

@@ -26,7 +26,7 @@ export const Aims = () => {
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#ED843D' }}>
             01 — About
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold font-sans text-gray-900 mb-4 tracking-tight">
             What You&apos;ll Work On
           </h2>
           <p className="text-sm sm:text-base text-stone-500 font-light">

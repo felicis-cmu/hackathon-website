@@ -21,10 +21,6 @@ const faqItems = [
     answer: 'Yes! You\'ll meet Felicis partners, Skild experts, and fellow builders. Top teams are invited to dinner and Felicis meetings—opportunities aren\'t limited to hackathon winners.',
   },
   {
-    question: 'Are travel reimbursements provided?',
-    answer: 'Please reach out to the Felicis team for questions about travel support.',
-  },
-  {
     question: 'Do participants just ideate, or actually build something?',
     answer: 'You build. VentureHacks is a hands-on hackathon—teams have 7 hours to create a functional prototype and present their work.',
   },
@@ -44,7 +40,7 @@ export const FAQ = () => {
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#ED843D' }}>
             05 — FAQ
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold font-sans text-gray-900 mb-4 tracking-tight">
             Questions Answered
           </h2>
           <p className="text-sm sm:text-base text-stone-500 font-light">

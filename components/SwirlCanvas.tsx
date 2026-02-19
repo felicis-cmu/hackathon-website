@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 
-/* Muted warm taupe palette — blends with #EDEAE3 background */
-const ORANGE_PRIMARY = { r: 160, g: 152, b: 140 }  // warm gray-taupe
-const ORANGE_WARM   = { r: 175, g: 165, b: 150 }   // slightly lighter taupe
+/* Warm tan — desaturated toward the #FAF8F4 cream background */
+const ORANGE_PRIMARY = { r: 160, g: 118, b: 72 }  // muted amber-tan
+const ORANGE_WARM    = { r: 175, g: 132, b: 85 }  // slightly lighter warm tone
 
 function floor(x: number) {
   return x | 0
@@ -68,8 +68,8 @@ function createSimplex(seed = Math.random) {
     const Y0 = y - j + t
     const Z0 = z - k + t
 
-    let i1: number, j1: number, k1
-    let i2: number, j2: number, k2
+    let i1: number, j1: number, k1: number
+    let i2: number, j2: number, k2: number
     if (X0 >= Y0) {
       if (Y0 >= Z0) {
         i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0
@@ -131,21 +131,21 @@ function triangleWave(age: number, ttl: number): number {
 }
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const rand = (max: number) => Math.random() * max
-const TAU = 2 * Math.PI
+const rand  = (max: number) => Math.random() * max
+const TAU   = 2 * Math.PI
 
 export function SwirlCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const frameRef = useRef<number>(0)
+  const canvasRef    = useRef<HTMLCanvasElement>(null)
+  const frameRef     = useRef<number>(0)
   const offscreenRef = useRef<CanvasRenderingContext2D | null>(null)
   const imageDataRef = useRef<ImageData | null>(null)
   const particlesRef = useRef<ParticleStore | null>(null)
-  const noiseRef = useRef<((x: number, y: number, z: number) => number) | null>(null)
-  const timeRef = useRef(0)
-  const mouseRef = useRef({ x: 0, y: 0 })
-  const boundsRef = useRef({ width: 0, height: 0, centerx: 0, centery: 0 })
+  const noiseRef     = useRef<((x: number, y: number, z: number) => number) | null>(null)
+  const timeRef      = useRef(0)
+  const mouseRef     = useRef({ x: 0, y: 0 })
+  const boundsRef    = useRef({ width: 0, height: 0, centerx: 0, centery: 0 })
 
-  const PROPS = ['x', 'y', 'vx', 'vy', 'a', 'l', 'ttl', 'vc', 'r', 'g', 'b']
+  const PROP_COUNT = 11  // x y vx vy age _ ttl vc r g b
 
   const spawn = (): number[] => {
     const { width, height, centerx, centery } = boundsRef.current
@@ -153,43 +153,30 @@ export function SwirlCanvas() {
     let x: number, y: number
 
     switch (edge) {
-      case 0:
-        x = rand(width)
-        y = -50
-        break
-      case 1:
-        x = width + 50
-        y = rand(height)
-        break
-      case 2:
-        x = rand(width)
-        y = height + 50
-        break
-      default:
-        x = -50
-        y = rand(height)
+      case 0: x = rand(width);  y = -50;          break
+      case 1: x = width + 50;   y = rand(height);  break
+      case 2: x = rand(width);  y = height + 50;   break
+      default: x = -50;         y = rand(height);
     }
 
-    const ttl = 150 + rand(300)
-    const vc = rand(17) + 3
+    const ttl  = 200 + rand(400)
+    const vc   = rand(10) + 2
     const dist = Math.min(
-      Math.sqrt((x - centerx) ** 2 + (y - centery) ** 2) / (0.5 * Math.sqrt(width * width + height * height)),
+      Math.sqrt((x - centerx) ** 2 + (y - centery) ** 2) /
+      (0.5 * Math.sqrt(width * width + height * height)),
       1
     )
 
-    // Orange palette: Felicis orange with warm variations
-    const r = Math.floor(ORANGE_PRIMARY.r + (ORANGE_WARM.r - ORANGE_PRIMARY.r) * dist + rand(25))
-    const g = Math.floor(ORANGE_PRIMARY.g + (ORANGE_WARM.g - ORANGE_PRIMARY.g) * dist + rand(20))
-    const b = Math.floor(ORANGE_PRIMARY.b + (ORANGE_WARM.b - ORANGE_PRIMARY.b) * dist + rand(15))
+    const r = Math.floor(ORANGE_PRIMARY.r + (ORANGE_WARM.r - ORANGE_PRIMARY.r) * dist + rand(20))
+    const g = Math.floor(ORANGE_PRIMARY.g + (ORANGE_WARM.g - ORANGE_PRIMARY.g) * dist + rand(15))
+    const b = Math.floor(ORANGE_PRIMARY.b + (ORANGE_WARM.b - ORANGE_PRIMARY.b) * dist + rand(10))
 
     return [x, y, 0, 0, 0, 0, ttl, vc, r, g, b]
   }
 
   const advect = (
-    x: number,
-    y: number,
-    vx: number,
-    vy: number,
+    x: number, y: number,
+    vx: number, vy: number,
     vc: number
   ): [number, number, number, number] => {
     const { centerx, centery } = boundsRef.current
@@ -198,32 +185,33 @@ export function SwirlCanvas() {
 
     const dx = x - centerx
     const dy = y - centery
-    const c = Math.sqrt(dx * dx + dy * dy)
-    const u = Math.atan2(dy, dx)
-    const m = 8e-4 * c
-    const p = u + 0.01 * timeRef.current + 0.005 * c
-    const targetVx = 0.8 * Math.cos(p) + Math.cos(u) * m
-    const targetVy = 0.8 * Math.sin(p) + Math.sin(u) * m
+    const c  = Math.sqrt(dx * dx + dy * dy)
+    const u  = Math.atan2(dy, dx)
+    const m  = 4e-4 * c
+    // Gentler rotation: 0.3 instead of 0.8, slower time evolution
+    const pp = u + 0.005 * timeRef.current + 0.003 * c
+    const targetVx = 0.3 * Math.cos(pp) + Math.cos(u) * m
+    const targetVy = 0.3 * Math.sin(pp) + Math.sin(u) * m
 
-    const j = noise(0.002 * x, 0.002 * y, 5e-4 * timeRef.current) * TAU * 8
-    const kx = Math.cos(j) * vc * 0.3
-    const ky = Math.sin(j) * vc * 0.3
+    // Less turbulence: TAU*3 instead of TAU*8
+    const j  = noise(0.002 * x, 0.002 * y, 4e-4 * timeRef.current) * TAU * 3
+    const kx = Math.cos(j) * vc * 0.15
+    const ky = Math.sin(j) * vc * 0.15
 
     const { x: mx, y: my } = mouseRef.current
     const sx = mx - x
     const sy = my - y
-    const R = Math.sqrt(sx * sx + sy * sy)
-    let I = 0,
-      F = 0
-    if (R < 200) {
+    const R  = Math.sqrt(sx * sx + sy * sy)
+    let I = 0, F = 0
+    if (R < 160) {
       const angle = Math.atan2(sy, sx) + 0.5 * Math.PI
-      const t = ((200 - R) / 200) * 2
-      I = Math.cos(angle) * t
-      F = Math.sin(angle) * t
+      const tt = ((160 - R) / 160) * 1.2
+      I = Math.cos(angle) * tt
+      F = Math.sin(angle) * tt
     }
 
-    const newVx = lerp(vx, targetVx + kx + I, 0.04)
-    const newVy = lerp(vy, targetVy + ky + F, 0.04)
+    const newVx = lerp(vx, targetVx + kx + I, 0.03)
+    const newVy = lerp(vy, targetVy + ky + F, 0.03)
     return [x + newVx, y + newVy, newVx, newVy]
   }
 
@@ -232,29 +220,29 @@ export function SwirlCanvas() {
     if (!canvas) return
 
     const resize = () => {
-      const w = window.innerWidth
-      const h = window.innerHeight
-      canvas.width = w
+      const w = canvas.offsetWidth  || window.innerWidth
+      const h = canvas.offsetHeight || window.innerHeight
+      canvas.width  = w
       canvas.height = h
       boundsRef.current = { width: w, height: h, centerx: w * 0.5, centery: h * 0.5 }
       if (offscreenRef.current) {
-        offscreenRef.current.canvas.width = w
+        offscreenRef.current.canvas.width  = w
         offscreenRef.current.canvas.height = h
         imageDataRef.current = offscreenRef.current.createImageData(w, h)
       }
     }
 
-    offscreenRef.current = document.createElement('canvas').getContext('2d')
-    noiseRef.current = createSimplex()
+    offscreenRef.current = document.createElement('canvas').getContext('2d')!
+    noiseRef.current     = createSimplex()
     resize()
-    particlesRef.current = new ParticleStore(5500, PROPS.length)
+
+    // 1 800 particles — very sparse, barely-there texture
+    particlesRef.current = new ParticleStore(1800, PROP_COUNT)
     particlesRef.current.map(() => spawn())
 
-    const ctx = canvas.getContext('2d')!
-    const offCtx = offscreenRef.current
-    const particles = particlesRef.current
-    const imageData = offCtx!.createImageData(canvas.width, canvas.height)
-    imageDataRef.current = imageData
+    const ctx      = canvas.getContext('2d')!
+    const offCtx   = offscreenRef.current!
+    imageDataRef.current = offCtx.createImageData(canvas.width, canvas.height)
 
     const loop = () => {
       timeRef.current++
@@ -262,53 +250,53 @@ export function SwirlCanvas() {
       const o = imageDataRef.current!
       o.data.fill(0)
 
-      particles.forEach((p, idx) => {
+      particlesRef.current!.forEach((p, idx) => {
         let [x, y, vx, vy, age, , ttl, vc, r, g, b] = p
         age++
-        const alpha = 255 * triangleWave(age, ttl)
 
         if (age >= ttl || y < -100 || y > height + 100 || x < -100 || x > width + 100) {
-          particles.set(spawn(), idx)
+          particlesRef.current!.set(spawn(), idx)
           return
         }
 
         const [nx, ny, nvx, nvy] = advect(x, y, vx, vy, vc)
-        particles.set([nx, ny, nvx, nvy, age, 0, ttl, vc, r, g, b], idx)
+        particlesRef.current!.set([nx, ny, nvx, nvy, age, 0, ttl, vc, r, g, b], idx)
 
         const ix = x | 0
         const iy = y | 0
         if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
-          const lifeRatio = age / ttl
-          const speedFactor = Math.min(0.08 * Math.sqrt(nvx * nvx + nvy * nvy), 1)
-          const blend = 0.4 * lifeRatio + 0.6 * speedFactor
-          // Subtle blend — keep muted
-          const extra = 2 * Math.sin(lifeRatio * Math.PI)
-          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.08 * blend) + extra)))
-          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.05 * blend) + extra)))
-          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.04 * blend) + extra)))
-          const A = Math.min(255, Math.floor(alpha * 0.85))
+          const life       = triangleWave(age, ttl)
+          const lifeRatio  = age / ttl
+          const speedFactor = Math.min(0.06 * Math.sqrt(nvx * nvx + nvy * nvy), 1)
+          const blend      = 0.4 * lifeRatio + 0.6 * speedFactor
+          const extra      = 6 * Math.sin(lifeRatio * Math.PI)
+          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.25 * blend) + extra + 12 * speedFactor)))
+          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.12 * blend) + extra +  4 * speedFactor)))
+          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.08 * blend)           +  2 * speedFactor)))
+          // Very low alpha — ghost-level visibility
+          const A = Math.min(255, Math.floor(255 * life * 0.22))
           const i = 4 * (ix + iy * width)
-          o.data[i] = R
+          o.data[i]     = R
           o.data[i + 1] = G
           o.data[i + 2] = B
           o.data[i + 3] = A
         }
       })
 
-      offCtx!.putImageData(o, 0, 0)
+      offCtx.putImageData(o, 0, 0)
 
-      // Fade trails by reducing pixel alpha → transparent (reveals gradient behind)
+      // Faster fade — trails dissipate quickly
       ctx.save()
       ctx.globalCompositeOperation = 'destination-out'
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.16)'
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'
       ctx.fillRect(0, 0, width, height)
       ctx.restore()
 
-      // Draw particles — soft, no glow
+      // Single soft draw pass — no glow
       ctx.save()
-      ctx.filter = 'blur(0.4px)'
-      ctx.globalAlpha = 0.75
-      ctx.drawImage(offCtx!.canvas, 0, 0)
+      ctx.filter      = 'blur(0.5px)'
+      ctx.globalAlpha = 0.35
+      ctx.drawImage(offCtx.canvas, 0, 0)
       ctx.restore()
 
       frameRef.current = requestAnimationFrame(loop)
@@ -316,30 +304,25 @@ export function SwirlCanvas() {
 
     loop()
 
-    const onResize = () => {
-      resize()
-    }
+    const onResize    = () => resize()
     const onMouseMove = (e: MouseEvent) => {
-      if (!canvas) return
       const rect = canvas.getBoundingClientRect()
       mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
 
     window.addEventListener('resize', onResize)
     window.addEventListener('mousemove', onMouseMove)
-
     return () => {
       cancelAnimationFrame(frameRef.current)
       window.removeEventListener('resize', onResize)
       window.removeEventListener('mousemove', onMouseMove)
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none -z-10"
-      style={{ background: 'transparent' }}
       aria-hidden
     />
   )
