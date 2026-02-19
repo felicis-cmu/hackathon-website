@@ -156,7 +156,7 @@ export const Hero = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-gray-900 tracking-tight font-instrument leading-[0.9]">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-gray-900 tracking-tight font-sans leading-[0.9]">
             VentureHacks
           </h1>
 

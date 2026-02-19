@@ -14,7 +14,7 @@ const faqItems = [
   },
   {
     question: 'When and where is the event taking place?',
-    answer: 'VentureHacks is on March 14, 2026 at Carnegie Mellon University. Doors open at 12:45 PM and the event runs until approximately 7:15 PM.',
+    answer: 'VentureHacks is on March 14, 2026 at Carnegie Mellon University. Doors open at 11:00 AM and the event runs until approximately 8:00 PM.',
   },
   {
     question: 'Are there networking opportunities at the event?',
@@ -26,7 +26,7 @@ const faqItems = [
   },
   {
     question: 'How many aims can I participate in?',
-    answer: 'You can focus on one or combine multiple—product, AI, or Felicis portfolio integration. Build something that fits your interests.',
+    answer: 'You can focus on one or combine multiple: product, AI, or Felicis portfolio integration. Build something that fits your interests.',
   },
 ]
 

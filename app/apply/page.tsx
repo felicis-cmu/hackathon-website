@@ -59,7 +59,7 @@ function clearDraft(userId: string) {
 }
 
 const SHORT_ANSWERS_INTRO =
-  'Your answers will be reviewed and weighed towards invitations to the final dinner and Felicis meetings—opportunities are not limited to hackathon winners.'
+  'Your answers will be reviewed and weighed towards participation in the hackathon and for team matching (if applicable).'
 
 const SHORT_QUESTIONS = [
   'Why do you want to attend VentureHacks?',

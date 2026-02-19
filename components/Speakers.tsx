@@ -15,7 +15,7 @@ export const Speakers = () => {
     {
       title: 'Free Lunch',
       description: 'Catered on us',
-      details: 'Fuel up mid-hack with a free catered lunch — so you can stay focused on building.'
+      details: 'Fuel up mid-hack with a free catered lunch so you can stay focused on building.'
     },
   ]
 

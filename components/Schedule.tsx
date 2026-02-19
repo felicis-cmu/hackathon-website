@@ -31,9 +31,7 @@ export const Schedule = () => {
             {scheduleItems.map((item, index) => (
               <div
                 key={index}
-                className={`flex gap-6 sm:gap-10 pl-5 sm:pl-7 pr-6 sm:pr-8 py-4 sm:py-5 border-l-2 ${
-                  index === 0 ? 'border-felicis-orange' : 'border-stone-200'
-                }`}
+                className="flex gap-6 sm:gap-10 pl-5 sm:pl-7 pr-6 sm:pr-8 py-4 sm:py-5 border-l-2 border-stone-200"
               >
                 <div className="w-20 sm:w-24 shrink-0 text-sm text-stone-400 pt-0.5 font-light tabular-nums">
                   {item.time}

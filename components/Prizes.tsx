@@ -19,8 +19,8 @@ const prizes = [
   },
   {
     place: '3rd',
-    amount: 'Nintendo Switch',
-    desc: 'Or Apple Watch SE per team member',
+    amount: 'Nintendo Switches',
+    desc: 'Per team member',
     perk: 'Coffee chat with Felicis partners',
     bg: '#FFFFFF',
     border: '#E8E8E5',

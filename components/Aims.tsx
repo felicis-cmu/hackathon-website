@@ -38,15 +38,14 @@ export const Aims = () => {
           {aims.map((aim) => (
             <div
               key={aim.id}
-              className="glass-shot-card rounded-2xl overflow-hidden p-6 sm:p-7 flex flex-col"
+              className="glass-shot-card rounded-2xl overflow-hidden p-6 sm:p-7"
             >
               <div className="glass-shimmer" />
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="w-8 h-0.5 bg-felicis-orange mb-5 rounded-full" />
+              <div className="relative z-10">
                 <h4 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
                   {aim.title}
                 </h4>
-                <p className="text-sm text-stone-500 flex-1">{aim.description}</p>
+                <p className="text-sm text-stone-500">{aim.description}</p>
               </div>
             </div>
           ))}
