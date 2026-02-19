@@ -39,7 +39,7 @@ function loadDraft(userId: string): Partial<DraftForm> | null {
   }
 }
 
-function saveDraft(userId: string, form: DraftForm) {
+function saveDraft(userId: string, form: Omit<ReturnType<typeof getInitialForm>, 'resume'> & { resume?: File | null }) {
   if (typeof window === 'undefined') return
   try {
     const { resume: _, ...rest } = form
@@ -118,7 +118,7 @@ export default function ApplyPage() {
   const [form, setForm] = useState(getInitialForm)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const formTopRef = useRef<HTMLDivElement>(null)
+  const formTopRef = useRef<HTMLFormElement>(null)
 
   const supabase = createClient()
 
