@@ -2,38 +2,188 @@
 
 import Link from 'next/link'
 import { Container } from './ui/Container'
+import { useState, useEffect, useRef, CSSProperties } from 'react'
+
+const EVENT_DATE = new Date('2026-03-14T11:00:00')
+
+const W = 50   // card width px
+const H = 68   // card height px
+const FS = 40  // font size px
+
+function useCountdown() {
+  const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  useEffect(() => {
+    const tick = () => {
+      const diff = EVENT_DATE.getTime() - Date.now()
+      if (diff <= 0) { setT({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return }
+      setT({
+        days:    Math.floor(diff / 86400000),
+        hours:   Math.floor((diff / 3600000) % 24),
+        minutes: Math.floor((diff / 60000) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      })
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [])
+  return t
+}
+
+function FlipDigit({ value }: { value: string }) {
+  const [current, setCurrent] = useState(value)
+  const [prev, setPrev]       = useState(value)
+  const [phase, setPhase]     = useState<'idle' | 'away' | 'in'>('idle')
+  const t1 = useRef<ReturnType<typeof setTimeout>>()
+  const t2 = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    if (value === current) return
+    clearTimeout(t1.current); clearTimeout(t2.current)
+    setPrev(current)
+    setPhase('away')
+    t1.current = setTimeout(() => { setCurrent(value); setPhase('in')  }, 270)
+    t2.current = setTimeout(() => { setPhase('idle') }, 540)
+    return () => { clearTimeout(t1.current); clearTimeout(t2.current) }
+  }, [value]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const halfTop: CSSProperties = {
+    position: 'absolute', top: 0, left: 0, right: 0,
+    height: '50%', overflow: 'hidden',
+    borderRadius: '6px 6px 0 0',
+    background: '#FFFEFB',
+    display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+  }
+  const halfBot: CSSProperties = {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    height: '50%', overflow: 'hidden',
+    borderRadius: '0 0 6px 6px',
+    background: '#F5F3EF',
+    display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+  }
+  const digit: CSSProperties = {
+    fontSize: FS, fontWeight: 700,
+    lineHeight: `${H}px`,
+    color: '#1C1917',
+    fontVariantNumeric: 'tabular-nums',
+    userSelect: 'none',
+  }
+
+  return (
+    <div style={{ position: 'relative', width: W, height: H, perspective: '400px' }}>
+      {/* Card shadow/border */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 6,
+        border: '1px solid #DDD9D4',
+        boxShadow: '0 6px 18px rgba(15,25,35,0.12), 0 1px 4px rgba(15,25,35,0.06)',
+        pointerEvents: 'none', zIndex: 0,
+      }} />
+
+      {/* Static bottom — always new digit */}
+      <div style={halfBot}>
+        <span style={{ ...digit, marginTop: `${-H / 2}px` }}>{current}</span>
+      </div>
+
+      {/* Static top — new digit (visible once flap lifts) */}
+      <div style={halfTop}>
+        <span style={{ ...digit, marginBottom: `${-H / 2}px` }}>{current}</span>
+      </div>
+
+      {/* Flap: top half of PREVIOUS digit flipping away */}
+      {(phase === 'away') && (
+        <div style={{
+          ...halfTop,
+          transformOrigin: 'center bottom',
+          animation: 'flipTopAway 0.27s ease-in forwards',
+          zIndex: 8,
+        }}>
+          <span style={{ ...digit, marginBottom: `${-H / 2}px` }}>{prev}</span>
+        </div>
+      )}
+
+      {/* Flap: bottom half of NEW digit flipping in */}
+      {(phase === 'in') && (
+        <div style={{
+          ...halfBot,
+          transformOrigin: 'center top',
+          animation: 'flipBottomIn 0.27s ease-out forwards',
+          zIndex: 8,
+        }}>
+          <span style={{ ...digit, marginTop: `${-H / 2}px` }}>{current}</span>
+        </div>
+      )}
+
+      {/* Center fold line */}
+      <div style={{
+        position: 'absolute', top: '50%', left: 0, right: 0,
+        height: '1px', background: 'rgba(15,25,35,0.09)',
+        transform: 'translateY(-0.5px)', zIndex: 9,
+      }} />
+    </div>
+  )
+}
+
+function FlipUnit({ value, label }: { value: number; label: string }) {
+  const s = String(value).padStart(2, '0')
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex gap-1">
+        <FlipDigit value={s[0]} />
+        <FlipDigit value={s[1]} />
+      </div>
+      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-stone-400">
+        {label}
+      </span>
+    </div>
+  )
+}
 
 export const Hero = () => {
+  const { days, hours, minutes, seconds } = useCountdown()
+
   return (
     <section className="min-h-screen flex items-center justify-center -mt-20 relative overflow-hidden">
-
       <Container>
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8 sm:space-y-12">
-          {/* Date */}
-          <p className="text-sm sm:text-base md:text-lg font-light tracking-wide text-stone-500 uppercase">
-            March 14, 2026
-          </p>
+        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8 sm:space-y-10">
 
-          {/* Main Title */}
+          {/* Event badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-white/60 text-xs font-medium text-stone-500 tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#ED843D' }} />
+            March 14, 2026 · Carnegie Mellon University
+          </div>
+
+          {/* Title */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light text-gray-900 tracking-tight font-serif leading-[0.9]">
             VentureHacks
           </h1>
 
-          {/* Presented By */}
-          <p className="text-sm sm:text-base md:text-lg font-light tracking-wide text-stone-500">
-            Presented by Felicis@CMU
-          </p>
+          {/* Flip clock */}
+          <div className="flex items-end gap-3 sm:gap-5">
+            <FlipUnit value={days}    label="Days" />
+            <span className="text-3xl text-stone-200 font-light pb-6 select-none">:</span>
+            <FlipUnit value={hours}   label="Hours" />
+            <span className="text-3xl text-stone-200 font-light pb-6 select-none">:</span>
+            <FlipUnit value={minutes} label="Min" />
+            <span className="text-3xl text-stone-200 font-light pb-6 select-none">:</span>
+            <FlipUnit value={seconds} label="Sec" />
+          </div>
 
-          {/* Apply Button */}
-          <Link
-            href="/apply"
-            className="px-8 sm:px-10 py-3 sm:py-3.5 text-sm font-semibold tracking-wide text-white bg-felicis-orange rounded-full hover:bg-felicis-orange-light transition-all duration-200 mt-4 shadow-sm hover:shadow-md"
-          >
-            Apply now
-          </Link>
+          {/* CTA */}
+          <div className="flex flex-col items-center gap-3">
+            <Link
+              href="/apply"
+              className="px-8 sm:px-10 py-3 sm:py-3.5 text-sm font-semibold tracking-wide text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
+              style={{ backgroundColor: '#ED843D' }}
+            >
+              Apply now
+            </Link>
+            <p className="text-xs text-stone-400 font-light tracking-wide">
+              Presented by Felicis@CMU
+            </p>
+          </div>
+
         </div>
       </Container>
-
     </section>
   )
 }

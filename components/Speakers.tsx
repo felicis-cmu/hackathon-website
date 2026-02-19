@@ -23,8 +23,8 @@ export const Speakers = () => {
     <section id="speakers" className="py-16 sm:py-20 border-t border-stone-200">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <p className="text-xs font-semibold tracking-widest uppercase text-felicis-orange mb-3">
-            <span className="mr-2" style={{ color: '#ED843D' }}>04</span>Speakers
+          <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#ED843D' }}>
+            04 — Speakers
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Speakers & Activities
