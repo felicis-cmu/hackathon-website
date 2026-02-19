@@ -38,17 +38,16 @@ export const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section id="faq" className="py-16 sm:py-20">
+    <section id="faq" className="py-16 sm:py-20 border-t border-stone-200">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 text-gray-500 mb-2">
-            <span className="text-lg">?</span>
-            <span className="text-xs sm:text-sm font-medium tracking-widest uppercase">[FAQ]</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-4 tracking-tight">
+          <p className="text-xs font-semibold tracking-widest uppercase text-felicis-orange mb-3">
+            <span className="mr-2" style={{ color: '#ED843D' }}>05</span>FAQ
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-4 tracking-tight">
             Questions Answered
           </h2>
-          <p className="text-sm sm:text-base text-gray-500">
+          <p className="text-sm sm:text-base text-stone-500 font-light">
             Reach out to the Felicis team with additional questions.
           </p>
         </div>
@@ -63,12 +62,14 @@ export const FAQ = () => {
                 <button
                   type="button"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50/50 transition-colors"
+                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-stone-50/50 transition-colors"
                 >
-                  <span className="font-medium text-gray-900 pr-4">{item.question}</span>
+                  <span className={`font-medium text-gray-900 pr-4 transition-all ${
+                    openIndex === index ? 'underline decoration-felicis-orange underline-offset-2 decoration-2' : ''
+                  }`}>{item.question}</span>
                   <svg
-                    className={`w-5 h-5 shrink-0 text-gray-500 transition-transform ${
-                      openIndex === index ? 'rotate-180' : ''
+                    className={`w-5 h-5 shrink-0 transition-transform ${
+                      openIndex === index ? 'rotate-180 text-felicis-orange' : 'text-stone-400'
                     }`}
                     fill="none"
                     stroke="currentColor"
@@ -79,7 +80,7 @@ export const FAQ = () => {
                 </button>
                 {openIndex === index && (
                   <div className="px-6 pb-4 pt-0">
-                    <p className="text-sm text-gray-600">{item.answer}</p>
+                    <p className="text-sm text-stone-500">{item.answer}</p>
                   </div>
                 )}
               </div>

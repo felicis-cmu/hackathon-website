@@ -20,13 +20,16 @@ export const Speakers = () => {
   ]
 
   return (
-    <section className="py-16 sm:py-20">
+    <section id="speakers" className="py-16 sm:py-20 border-t border-stone-200">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-3 sm:mb-4 tracking-tight">
+          <p className="text-xs font-semibold tracking-widest uppercase text-felicis-orange mb-3">
+            <span className="mr-2" style={{ color: '#ED843D' }}>04</span>Speakers
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Speakers & Activities
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 font-light">
+          <p className="text-base sm:text-lg text-stone-500 max-w-2xl mx-auto px-4 font-light">
             Learn from industry leaders and connect with venture capitalists
           </p>
         </div>
@@ -42,7 +45,7 @@ export const Speakers = () => {
                   <p className="text-base sm:text-lg font-semibold text-gray-900">
                     {activity.description}
                   </p>
-                  <p className="text-sm sm:text-base text-gray-600">
+                  <p className="text-sm sm:text-base text-stone-500">
                     {activity.details}
                   </p>
                 </div>

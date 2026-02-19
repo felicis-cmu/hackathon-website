@@ -7,7 +7,7 @@ const prizes = [
     desc: 'Cash prize',
     perk: 'Coffee chat with Felicis partners',
     bg: '#FFFFFF',
-    border: '#E8DDD2',
+    border: '#E8E8E5',
   },
   {
     place: '2nd',
@@ -15,7 +15,7 @@ const prizes = [
     desc: 'Smart glasses per team member',
     perk: 'Coffee chat with Felicis partners',
     bg: '#FFFFFF',
-    border: '#E8DDD2',
+    border: '#E8E8E5',
   },
   {
     place: '3rd',
@@ -23,19 +23,22 @@ const prizes = [
     desc: 'Or Apple Watch SE per team member',
     perk: 'Coffee chat with Felicis partners',
     bg: '#FFFFFF',
-    border: '#E8DDD2',
+    border: '#E8E8E5',
   },
 ]
 
 export const Prizes = () => {
   return (
-    <section id="prizes" className="py-16 sm:py-20">
+    <section id="prizes" className="py-16 sm:py-20 border-t border-stone-200">
       <Container>
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-3 sm:mb-4 tracking-tight">
+          <p className="text-xs font-semibold tracking-widest uppercase text-felicis-orange mb-3">
+            <span className="mr-2" style={{ color: '#ED843D' }}>02</span>Prizes
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-serif text-gray-900 mb-3 sm:mb-4 tracking-tight">
             Compete & Win
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 font-light">
+          <p className="text-base sm:text-lg text-stone-500 font-light">
             Top 3 teams meet Felicis partners and take home incredible prizes
           </p>
         </div>
@@ -45,7 +48,7 @@ export const Prizes = () => {
             <div
               key={prize.place}
               style={{ backgroundColor: prize.bg, borderColor: prize.border }}
-              className="rounded-2xl border p-6 sm:p-7 flex flex-col"
+              className="rounded-2xl border p-6 sm:p-7 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200"
             >
               <div className="text-xs font-semibold uppercase tracking-widest text-felicis-orange mb-4">
                 {prize.place} Place

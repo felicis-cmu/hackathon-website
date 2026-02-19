@@ -3,16 +3,9 @@ import Image from 'next/image'
 export const Footer = () => {
   return (
     <footer className="relative pt-2 pb-16 sm:pt-4 sm:pb-20 overflow-hidden min-h-[200px]">
-      {/* Big VentureHacks watermark - bottom, Dancing Script, black */}
-      <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
-        <span className="font-dancing text-[12vw] sm:text-[10vw] font-bold text-black/10 tracking-tighter leading-none pb-4">
-          VentureHacks
-        </span>
-      </div>
-
-      {/* Logo + Copyright - bottom left, aligned with watermark bottom */}
+      {/* Logo + Copyright - bottom left */}
       <div className="absolute left-0 z-10 flex items-end gap-3 pl-4 sm:pl-6" style={{ bottom: '2.0rem' }}>
-        <Image src="/logos/venture.png" alt="VentureHacks" width={48} height={48} className="h-10 w-10 sm:h-12 sm:w-12" />
+        <Image src="/logos/felicis.png" alt="Felicis" width={48} height={48} className="h-10 w-10 sm:h-12 sm:w-12" />
         <p className="text-sm text-gray-800">
           © 2026 VentureHacks. All rights reserved.
         </p>

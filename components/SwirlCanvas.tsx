@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 
-/* Deep burnt orange palette — no yellow push */
-const ORANGE_PRIMARY = { r: 185, g: 60, b: 5 }  // #B93C05 deep burnt orange
-const ORANGE_WARM   = { r: 210, g: 75, b: 10 }  // #D24B0A warm rust
+/* Muted warm taupe palette — blends with #EDEAE3 background */
+const ORANGE_PRIMARY = { r: 160, g: 152, b: 140 }  // warm gray-taupe
+const ORANGE_WARM   = { r: 175, g: 165, b: 150 }   // slightly lighter taupe
 
 function floor(x: number) {
   return x | 0
@@ -247,7 +247,7 @@ export function SwirlCanvas() {
     offscreenRef.current = document.createElement('canvas').getContext('2d')
     noiseRef.current = createSimplex()
     resize()
-    particlesRef.current = new ParticleStore(18000, PROPS.length)
+    particlesRef.current = new ParticleStore(3500, PROPS.length)
     particlesRef.current.map(() => spawn())
 
     const ctx = canvas.getContext('2d')!
@@ -281,12 +281,12 @@ export function SwirlCanvas() {
           const lifeRatio = age / ttl
           const speedFactor = Math.min(0.08 * Math.sqrt(nvx * nvx + nvy * nvy), 1)
           const blend = 0.4 * lifeRatio + 0.6 * speedFactor
-          // Minimal brightness boost — keep orange, not yellow
-          const extra = 8 * Math.sin(lifeRatio * Math.PI)
-          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.3 * blend) + extra + 18 * speedFactor)))
-          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.15 * blend) + extra +  6 * speedFactor)))
-          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.1  * blend)            +  3 * speedFactor)))
-          const A = Math.min(255, Math.floor(alpha * 1.1))
+          // Subtle blend — keep muted
+          const extra = 2 * Math.sin(lifeRatio * Math.PI)
+          const R = Math.min(255, Math.max(0, Math.floor(r * (1 + 0.08 * blend) + extra)))
+          const G = Math.min(255, Math.max(0, Math.floor(g * (1 + 0.05 * blend) + extra)))
+          const B = Math.min(255, Math.max(0, Math.floor(b * (1 + 0.04 * blend) + extra)))
+          const A = Math.min(255, Math.floor(alpha * 0.55))
           const i = 4 * (ix + iy * width)
           o.data[i] = R
           o.data[i + 1] = G
@@ -304,18 +304,10 @@ export function SwirlCanvas() {
       ctx.fillRect(0, 0, width, height)
       ctx.restore()
 
-      // Draw particles with soft glow
+      // Draw particles — soft, no glow
       ctx.save()
-      ctx.filter = 'blur(0.5px) brightness(115%)'
-      ctx.globalAlpha = 0.9
-      ctx.drawImage(offCtx!.canvas, 0, 0)
-      ctx.restore()
-
-      // Additive glow pass for ember effect
-      ctx.save()
-      ctx.globalCompositeOperation = 'lighter'
-      ctx.filter = 'saturate(140%) blur(0.25px)'
-      ctx.globalAlpha = 0.45
+      ctx.filter = 'blur(0.4px)'
+      ctx.globalAlpha = 0.55
       ctx.drawImage(offCtx!.canvas, 0, 0)
       ctx.restore()
 

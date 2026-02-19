@@ -9,21 +9,22 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-plus-jakarta-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        dancing: ['var(--font-dancing-script)', 'cursive'],
+        sans: ['var(--font-plus-jakarta-sans)', 'sans-serif'],
+        serif: ['var(--font-cormorant)', 'Georgia', 'serif'],
       },
       colors: {
-        felicis: {
-          cream:  '#FAF7F2',
-          peach:  '#F5EDE0',
-          orange: '#C96824',
-          text:   '#1C1917',
-          muted:  '#6B5E52',
-          border: '#E8DDD2',
-        },
+        'felicis-orange':       '#ED843D',
+        'felicis-orange-light': '#FFA451',
+        'felicis-cream':        '#FAF8F4',
+        'felicis-surface':      '#F3F0EB',
+        'felicis-text':         '#0F1923',
+        'felicis-muted':        '#78716C',
+        'felicis-border':       '#EAE7E2',
+        'felicis-card':         '#FFFEFB',
       },
     },
   },
   plugins: [],
 }
+
 export default config
