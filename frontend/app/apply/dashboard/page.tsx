@@ -3,34 +3,29 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { createClient } from '@/lib/supabase/client'
 import { SwirlCanvas } from '@/components/SwirlCanvas'
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 
 type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | null
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, session, loading: authLoading } = useAuth()
   const [status, setStatus] = useState<ApplicationStatus>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
   useEffect(() => {
-    if (!user) return
-    const fetchApplication = async () => {
-      const { data, error } = await supabase
-        .from('applications')
-        .select('status')
-        .eq('user_id', user.id)
-        .single()
-      if (!error && data) {
-        setStatus((data.status as ApplicationStatus) ?? 'pending')
-      } else {
-        setStatus(null)
-      }
-      setLoading(false)
-    }
-    fetchApplication()
-  }, [user?.id])
+    if (!user || !session) return
+    fetch(`${BACKEND_URL}/api/applications/status`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then((r) => r.json())
+      .then(({ data }) => {
+        setStatus(data ? ((data.status as ApplicationStatus) ?? 'pending') : null)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [user?.id, session])
 
   if (authLoading || (user && loading)) {
     return (
@@ -93,10 +88,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-8">
               Your application is under review. We&apos;ll notify you once a decision has been made.
             </p>
-            <Link
-              href="/"
-              className="text-felicis-orange hover:underline text-sm"
-            >
+            <Link href="/" className="text-felicis-orange hover:underline text-sm">
               ← Back to home
             </Link>
           </div>

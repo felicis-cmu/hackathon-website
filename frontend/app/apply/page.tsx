@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { createClient } from '@/lib/supabase/client'
 import { CustomSelect } from '@/components/ui/CustomSelect'
 import { SwirlCanvas } from '@/components/SwirlCanvas'
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 
 const DRAFT_KEY = (userId: string) => `venturehacks-apply-draft-${userId}`
 
@@ -112,7 +113,7 @@ function getSectionErrors(
 }
 
 export default function ApplyPage() {
-  const { user, loading, signInWithGoogle } = useAuth()
+  const { user, session, loading, signInWithGoogle } = useAuth()
   const [formLoading, setFormLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState(getInitialForm)
@@ -120,9 +121,7 @@ export default function ApplyPage() {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const formTopRef = useRef<HTMLFormElement>(null)
 
-  const supabase = createClient()
-
-  // Load draft from localStorage when user is available (and not submitted)
+  // Load draft from localStorage when user is available
   useEffect(() => {
     if (!user) return
     const draft = loadDraft(user.id)
@@ -132,7 +131,7 @@ export default function ApplyPage() {
         ...draft,
         full_name: draft.full_name || (user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''),
         email: draft.email || (user.email ?? ''),
-        resume: null, // Resume cannot be persisted
+        resume: null,
       }))
     } else {
       setForm((f) => ({
@@ -161,24 +160,16 @@ export default function ApplyPage() {
     }
   }, [form, user?.id, persistDraft])
 
-  const checkExistingApplication = async () => {
-    if (!user) return null
-    const { data } = await supabase
-      .from('applications')
-      .select('id, status')
-      .eq('user_id', user.id)
-      .single()
-    return data
-  }
-
   const [hasApplication, setHasApplication] = useState(false)
   useEffect(() => {
-    if (user) {
-      checkExistingApplication().then((data) => {
-        if (data) setHasApplication(true)
-      })
-    }
-  }, [user])
+    if (!user || !session) return
+    fetch(`${BACKEND_URL}/api/applications/status`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then((r) => r.json())
+      .then(({ data }) => { if (data) setHasApplication(true) })
+      .catch(() => {})
+  }, [user, session])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -214,7 +205,7 @@ export default function ApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!user || !session) return
     if (!validateForm()) {
       formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
@@ -225,26 +216,46 @@ export default function ApplyPage() {
     setValidationErrors({})
 
     try {
+      const token = session.access_token
       let resumeUrl: string | null = null
       let resumeFilename: string | null = null
 
       if (form.resume) {
-        const ext = form.resume.name.split('.').pop()
-        const path = `${user.id}/resume.${ext}`
-        const { error: uploadError } = await supabase.storage
-          .from('resumes')
-          .upload(path, form.resume, { upsert: true })
+        // Get a signed upload URL from the backend
+        const uploadRes = await fetch(`${BACKEND_URL}/api/upload/resume`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ filename: form.resume.name }),
+        })
+        if (!uploadRes.ok) {
+          const { error: uploadErr } = await uploadRes.json()
+          throw new Error(uploadErr || 'Failed to get upload URL')
+        }
+        const { signedUrl, publicUrl } = await uploadRes.json()
 
-        if (uploadError) throw uploadError
+        // Upload directly to Supabase storage via the signed URL
+        const putRes = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': form.resume.type || 'application/octet-stream' },
+          body: form.resume,
+        })
+        if (!putRes.ok) throw new Error('Failed to upload resume')
 
-        const { data: urlData } = supabase.storage.from('resumes').getPublicUrl(path)
-        resumeUrl = urlData.publicUrl
+        resumeUrl = publicUrl
         resumeFilename = form.resume.name
       }
 
-      const { error: insertError } = await supabase.from('applications').upsert(
-        {
-          user_id: user.id,
+      // Submit application data via backend
+      const submitRes = await fetch(`${BACKEND_URL}/api/applications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           full_name: form.full_name,
           email: form.email,
           phone: form.phone,
@@ -257,11 +268,14 @@ export default function ApplyPage() {
           mcq_responses: form.mcq_responses,
           resume_url: resumeUrl,
           resume_filename: resumeFilename,
-        },
-        { onConflict: 'user_id' }
-      )
+        }),
+      })
 
-      if (insertError) throw insertError
+      if (!submitRes.ok) {
+        const { error: submitErr } = await submitRes.json()
+        throw new Error(submitErr || 'Failed to submit application')
+      }
+
       clearDraft(user.id)
       window.location.href = '/apply/dashboard'
     } catch (err: unknown) {
