@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+
 export default function AdminPage() {
   const [key, setKey] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +18,7 @@ export default function AdminPage() {
     setError(null)
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/export', {
+      const res = await fetch(`${BACKEND_URL}/api/admin/export`, {
         headers: { 'x-admin-key': key },
       })
       if (!res.ok) {
@@ -74,7 +76,7 @@ export default function AdminPage() {
         </div>
 
         <p className="mt-6 text-xs text-gray-500">
-          Required: ADMIN_SECRET, SUPABASE_SERVICE_ROLE_KEY in .env.local
+          Required: ADMIN_SECRET, SUPABASE_SERVICE_ROLE_KEY in backend/.env
         </p>
       </div>
     </div>
