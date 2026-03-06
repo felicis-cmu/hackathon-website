@@ -361,7 +361,7 @@ export default function ApplyPage() {
         <div className="mb-8">
           <Link href="/" className="text-felicis-orange hover:underline text-sm">← Back to home</Link>
           <h1 className="text-3xl font-bold text-gray-900 mt-4">Apply to VentureHacks</h1>
-          <p className="text-gray-600 mt-2">March 14, 2026</p>
+          <p className="text-gray-600 mt-2">March 28, 2026</p>
         </div>
 
         <form ref={formTopRef} onSubmit={handleSubmit} className="space-y-8" noValidate>

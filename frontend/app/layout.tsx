@@ -30,8 +30,8 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: 'VentureHacks - March 14',
-  description: 'Join us for VentureHacks on March 14. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
+  title: 'VentureHacks - March 28',
+  description: 'Join us for VentureHacks on March 28. Build, compete, and meet VCs. Top prizes include $2,500, Meta Ray Bans, and Nintendo Switches.',
   keywords: ['hackathon', 'venturehacks', 'venture capital', 'technology', 'competition', 'felicis'],
   icons: {
     icon: '/logos/felicis.png',

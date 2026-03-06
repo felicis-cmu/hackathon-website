@@ -136,7 +136,7 @@ export default function DashboardPage() {
             <ul className="space-y-4 text-gray-700">
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>
-                <span><strong>Arrival:</strong> Arrive at Tepper by 10:30 AM on March 14</span>
+                <span><strong>Arrival:</strong> Arrive at Tepper by 10:30 AM on March 28</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>

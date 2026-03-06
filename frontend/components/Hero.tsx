@@ -134,7 +134,7 @@ export const Hero = () => {
           {/* Event badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-white/60 text-xs font-medium text-stone-500 tracking-wide">
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#ED843D' }} />
-            March 14, 2026 · Carnegie Mellon University
+            March 28, 2026 · Carnegie Mellon University
           </div>
 
           {/* Title */}

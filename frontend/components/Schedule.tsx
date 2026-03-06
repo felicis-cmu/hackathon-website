@@ -21,7 +21,7 @@ export const Schedule = () => {
             Event Schedule
           </h2>
           <p className="text-base sm:text-lg text-stone-500 font-light">
-            Saturday, March 14
+            Saturday, March 28
           </p>
         </div>
 
