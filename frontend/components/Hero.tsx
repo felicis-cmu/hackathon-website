@@ -5,7 +5,7 @@ import { Container } from './ui/Container'
 import { SwirlCanvas } from './SwirlCanvas'
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 
-const EVENT_DATE = new Date('2026-03-14T11:00:00')
+const EVENT_DATE = new Date('2026-03-28T11:00:00')
 
 const W = 50;   const H = 68;   const FS = 40   // desktop
 const WS = 36;  const HS = 50;  const FSS = 28  // mobile small
