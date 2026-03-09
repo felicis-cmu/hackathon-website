@@ -6,25 +6,30 @@ const router = Router()
 
 // POST /api/upload/resume — returns a signed upload URL for Supabase storage
 router.post('/resume', requireAuth, async (req: AuthRequest, res: Response) => {
-  const { filename } = req.body
-  if (!filename) return res.status(400).json({ error: 'Missing filename' })
+  try {
+    const { filename } = req.body || {}
+    if (!filename || typeof filename !== 'string') return res.status(400).json({ error: 'Missing filename' })
 
-  const ext = filename.split('.').pop()
-  const path = `${req.userId}/resume.${ext}`
+    const ext = filename.split('.').pop() || 'pdf'
+    const path = `${req.userId}/resume.${ext}`
 
-  const { data, error } = await supabase.storage
-    .from('resumes')
-    .createSignedUploadUrl(path)
+    const { data, error } = await supabase.storage
+      .from('resumes')
+      .createSignedUploadUrl(path)
 
-  if (error) return res.status(500).json({ error: error.message })
+    if (error) return res.status(500).json({ error: error.message })
 
-  const { data: urlData } = supabase.storage.from('resumes').getPublicUrl(path)
+    const { data: urlData } = supabase.storage.from('resumes').getPublicUrl(path)
 
-  return res.json({
-    signedUrl: data.signedUrl,
-    path,
-    publicUrl: urlData.publicUrl,
-  })
+    return res.json({
+      signedUrl: data.signedUrl,
+      path,
+      publicUrl: urlData.publicUrl,
+    })
+  } catch (e) {
+    console.error('Upload resume error:', e)
+    return res.status(500).json({ error: e instanceof Error ? e.message : 'Failed to create upload URL' })
+  }
 })
 
 export default router
