@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CustomSelect } from '@/components/ui/CustomSelect'
 import { SwirlCanvas } from '@/components/SwirlCanvas'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001').replace(/\/+$/, '')
 
 const DRAFT_KEY = (userId: string) => `venturehacks-apply-draft-${userId}`
 
