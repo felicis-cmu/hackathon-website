@@ -211,3 +211,25 @@ body {
   0%   { transform: rotateX(90deg); }
   100% { transform: rotateX(0deg); }
 }
+
+/* ========================================
+   CUSTOM SCROLLBAR STYLING
+   ======================================== */
+/* Webkit browsers (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

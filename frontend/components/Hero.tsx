@@ -5,7 +5,7 @@ import { Container } from './ui/Container'
 import { SwirlCanvas } from './SwirlCanvas'
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 
-const EVENT_DATE = new Date('2026-03-28T11:00:00')
+const EVENT_DATE = new Date('2026-03-21T23:59:00')
 
 const W = 50;   const H = 68;   const FS = 40   // desktop
 const WS = 36;  const HS = 50;  const FSS = 28  // mobile small
@@ -134,7 +134,7 @@ export const Hero = () => {
           {/* Event badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-white/60 text-xs font-medium text-stone-500 tracking-wide">
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#ED843D' }} />
-            March 28, 2026 · Carnegie Mellon University
+            Application due 3/21, Hackathon on 3/28
           </div>
 
           {/* Title */}
@@ -168,7 +168,7 @@ export const Hero = () => {
             >
               Apply now
             </Link>
-            <p className="text-xs text-stone-400 font-light tracking-wide">
+            <p className="text-sm sm:text-base text-stone-600 font-medium tracking-wide">
               Presented by Felicis@CMU
             </p>
           </div>

@@ -24,6 +24,7 @@ function getInitialForm() {
     short_answer_3: '',
     short_answer_4: '',
     mcq_responses: {} as Record<string, string>,
+    referral_other: '',
     resume: null as File | null,
   }
 }
@@ -60,7 +61,7 @@ function clearDraft(userId: string) {
 }
 
 const SHORT_ANSWERS_INTRO =
-  'Your answers will be reviewed and weighed towards participation in the hackathon and for team matching (if applicable).'
+  'Your answers will be reviewed and weighed towards participation in the hackathon and for team matching (if applicable). Please answer in 2-4 sentences.'
 
 const SHORT_QUESTIONS = [
   'Why do you want to attend VentureHacks?',
@@ -85,6 +86,11 @@ const MCQ_QUESTIONS = [
     question: 'What area interests you most?',
     options: ['AI/ML', 'Web3', 'DevTools', 'Consumer apps', 'Other'],
   },
+  {
+    id: 'referral',
+    question: 'How did you hear about VentureHacks?',
+    options: ['ScottyLabs', 'LinkedIn', 'IS Advisor', 'CS Advisor', 'SEP', 'Friend', 'Other'],
+  },
 ]
 
 const FIELD_LABELS: Record<string, string> = {
@@ -100,6 +106,8 @@ const FIELD_LABELS: Record<string, string> = {
   mcq_experience: 'Hackathon experience',
   mcq_team: 'Team status',
   mcq_focus: 'Focus area',
+  mcq_referral: 'How did you hear about us',
+  referral_other: 'Referral source (Other)',
   resume: 'Resume',
 }
 
@@ -181,8 +189,12 @@ export default function ApplyPage() {
     setForm((f) => ({
       ...f,
       mcq_responses: { ...f.mcq_responses, [key]: value },
+      ...(key === 'referral' && value !== 'Other' ? { referral_other: '' } : {}),
     }))
     if (validationErrors[`mcq_${key}`]) setValidationErrors((e) => ({ ...e, [`mcq_${key}`]: '' }))
+    if (key === 'referral' && value !== 'Other' && validationErrors.referral_other) {
+      setValidationErrors((e) => ({ ...e, referral_other: '' }))
+    }
   }
 
   const validateForm = (): boolean => {
@@ -198,6 +210,9 @@ export default function ApplyPage() {
     MCQ_QUESTIONS.forEach((q) => {
       if (!form.mcq_responses[q.id]?.trim()) errors[`mcq_${q.id}`] = 'Required'
     })
+    if (form.mcq_responses.referral === 'Other' && !form.referral_other?.trim()) {
+      errors.referral_other = 'Please specify how you heard about us'
+    }
     if (!form.resume) errors.resume = 'Required'
     setValidationErrors(errors)
     return Object.keys(errors).length === 0
@@ -266,6 +281,7 @@ export default function ApplyPage() {
           short_answer_3: form.short_answer_3,
           short_answer_4: form.short_answer_4,
           mcq_responses: form.mcq_responses,
+          referral_other: form.referral_other,
           resume_url: resumeUrl,
           resume_filename: resumeFilename,
         }),
@@ -514,9 +530,9 @@ export default function ApplyPage() {
 
           <section className="glass-shot-card rounded-2xl p-6 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Multiple Choice</h2>
-            {getSectionErrors(validationErrors, ['mcq_experience', 'mcq_team', 'mcq_focus']).length > 0 && (
+            {getSectionErrors(validationErrors, ['mcq_experience', 'mcq_team', 'mcq_focus', 'mcq_referral', 'referral_other']).length > 0 && (
               <p className="text-sm text-red-600">
-                {getSectionErrors(validationErrors, ['mcq_experience', 'mcq_team', 'mcq_focus'])
+                {getSectionErrors(validationErrors, ['mcq_experience', 'mcq_team', 'mcq_focus', 'mcq_referral', 'referral_other'])
                   .map((e) => `${e.label}: ${e.message}`)
                   .join(' • ')}
               </p>
@@ -533,6 +549,23 @@ export default function ApplyPage() {
                 />
                 {validationErrors[`mcq_${q.id}`] && (
                   <p className="mt-1 text-sm text-red-600">{validationErrors[`mcq_${q.id}`]}</p>
+                )}
+                {q.id === 'referral' && form.mcq_responses.referral === 'Other' && (
+                  <div className="mt-3">
+                    <input
+                      type="text"
+                      name="referral_other"
+                      value={form.referral_other}
+                      onChange={handleChange}
+                      placeholder="Please specify..."
+                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-felicis-orange focus:border-transparent outline-none ${
+                        validationErrors.referral_other ? 'border-red-500' : 'border-gray-200'
+                      }`}
+                    />
+                    {validationErrors.referral_other && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.referral_other}</p>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

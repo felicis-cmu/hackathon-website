@@ -28,13 +28,25 @@ export function CustomSelect({
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isOpen && triggerRef.current && typeof document !== 'undefined') {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownStyle({
-        top: rect.bottom + 4,
-        left: rect.left,
-        width: rect.width,
-      })
+    const updatePosition = () => {
+      if (triggerRef.current && typeof document !== 'undefined') {
+        const rect = triggerRef.current.getBoundingClientRect()
+        setDropdownStyle({
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width,
+        })
+      }
+    }
+
+    if (isOpen) {
+      updatePosition()
+      window.addEventListener('scroll', updatePosition, true)
+      window.addEventListener('resize', updatePosition)
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true)
+        window.removeEventListener('resize', updatePosition)
+      }
     }
   }, [isOpen])
 
@@ -56,7 +68,7 @@ export function CustomSelect({
   const dropdownContent = isOpen && (
     <div
       id={`custom-select-dropdown-${id}`}
-      className="fixed rounded-xl border border-gray-200 shadow-xl py-1 max-h-48 overflow-auto"
+      className="fixed rounded-xl border border-gray-200 shadow-xl max-h-48 overflow-hidden"
       style={{
         top: dropdownStyle.top,
         left: dropdownStyle.left,
@@ -65,29 +77,37 @@ export function CustomSelect({
         backgroundColor: '#ffffff',
       }}
     >
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => {
-            onChange(opt)
-            setIsOpen(false)
-          }}
-          className="w-full px-4 py-3 text-sm text-left transition-colors first:rounded-t-[11px] last:rounded-b-[11px]"
-          style={{
-            backgroundColor: value === opt ? '#F5EDE0' : '#ffffff',
-            color: value === opt ? '#C96824' : '#111827',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = value === opt ? '#F5EDE0' : '#f9fafb'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = value === opt ? '#F5EDE0' : '#ffffff'
-          }}
-        >
-          {opt}
-        </button>
-      ))}
+      <div
+        className="overflow-y-auto max-h-48 py-1 custom-scrollbar"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#d1d5db #ffffff',
+        }}
+      >
+        {options.map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => {
+              onChange(opt)
+              setIsOpen(false)
+            }}
+            className="w-full px-4 py-3 text-sm text-left transition-colors"
+            style={{
+              backgroundColor: value === opt ? '#F5EDE0' : '#ffffff',
+              color: value === opt ? '#C96824' : '#111827',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = value === opt ? '#F5EDE0' : '#f9fafb'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = value === opt ? '#F5EDE0' : '#ffffff'
+            }}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
     </div>
   )
 
