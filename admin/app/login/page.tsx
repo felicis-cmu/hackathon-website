@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -55,7 +56,20 @@ function LoginForm() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-sm w-full">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">VentureHacks Admin</h1>
+        <div className="mb-6 flex items-center gap-3">
+          <Image
+            src="/logos/felicis.png"
+            alt="Felicis"
+            width={48}
+            height={48}
+            className="h-12 w-12 object-contain"
+            priority
+          />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Felicis</p>
+            <h1 className="text-2xl font-bold text-gray-900">VentureHacks Admin</h1>
+          </div>
+        </div>
         <p className="text-gray-600 text-sm mb-6">Sign in with the admin password.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block text-sm font-medium text-gray-700">Password</label>

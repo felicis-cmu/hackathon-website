@@ -28,7 +28,10 @@ export default function ApplicationDetailPage() {
   const [app, setApp] = useState<Application | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
-  const [resumeLoading, setResumeLoading] = useState(false)
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null)
+  const [resumeFilename, setResumeFilename] = useState<string | null>(null)
+  const [resumeLoading, setResumeLoading] = useState(true)
+  const [resumeError, setResumeError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`/api/proxy/applications/${id}`)
@@ -39,6 +42,30 @@ export default function ApplicationDetailPage() {
       .then(setApp)
       .catch(() => setApp(null))
       .finally(() => setLoading(false))
+  }, [id])
+
+  useEffect(() => {
+    setResumeLoading(true)
+    setResumeError(null)
+
+    fetch(`/api/proxy/applications/${id}/resume`)
+      .then(async (r) => {
+        if (!r.ok) {
+          const data = await r.json().catch(() => null)
+          throw new Error(data?.error || 'Failed to load resume')
+        }
+        return r.json()
+      })
+      .then((data) => {
+        setResumeUrl(typeof data?.url === 'string' ? data.url : null)
+        setResumeFilename(typeof data?.filename === 'string' ? data.filename : null)
+      })
+      .catch((error) => {
+        setResumeUrl(null)
+        setResumeFilename(null)
+        setResumeError(error instanceof Error ? error.message : 'Failed to load resume')
+      })
+      .finally(() => setResumeLoading(false))
   }, [id])
 
   const updateStatus = async (status: 'accepted' | 'rejected') => {
@@ -58,17 +85,9 @@ export default function ApplicationDetailPage() {
     }
   }
 
-  const openResume = async () => {
-    setResumeLoading(true)
-    try {
-      const res = await fetch(`/api/proxy/applications/${id}/resume`)
-      const data = await res.json()
-      if (data?.url) window.open(data.url, '_blank')
-      else alert('No resume or failed to load')
-    } catch {
-      alert('Failed to load resume')
-    } finally {
-      setResumeLoading(false)
+  const openResume = () => {
+    if (resumeUrl) {
+      window.open(resumeUrl, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -181,13 +200,13 @@ export default function ApplicationDetailPage() {
             )}
 
             <div className="pt-4 flex flex-wrap gap-3">
-              {(app.resume_filename || app.resume_url) && (
+              {resumeUrl && (
                 <button
                   onClick={openResume}
                   disabled={resumeLoading}
                   className="px-4 py-2 rounded-lg bg-gray-100 text-gray-900 font-medium hover:bg-gray-200 disabled:opacity-50"
                 >
-                  {resumeLoading ? 'Loading...' : 'View resume'}
+                  Open resume in new tab
                 </button>
               )}
               {app.status !== 'accepted' && (
@@ -210,6 +229,31 @@ export default function ApplicationDetailPage() {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="mt-6 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Resume</h2>
+            {resumeFilename && (
+              <p className="mt-1 text-sm text-gray-500">{resumeFilename}</p>
+            )}
+          </div>
+
+          {resumeLoading ? (
+            <div className="px-6 py-12 text-sm text-gray-500">Loading resume...</div>
+          ) : resumeUrl ? (
+            <div className="h-[900px] bg-gray-100">
+              <iframe
+                src={resumeUrl}
+                title={`${app.full_name} resume`}
+                className="h-full w-full"
+              />
+            </div>
+          ) : (
+            <div className="px-6 py-12 text-sm text-gray-500">
+              {resumeError || 'No resume available for this application.'}
+            </div>
+          )}
         </div>
       </main>
     </div>

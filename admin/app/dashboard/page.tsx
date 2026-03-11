@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 type Application = {
-  id: string
+  id?: string
   full_name: string
   email: string
   status: string
@@ -12,11 +14,13 @@ type Application = {
 }
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [applications, setApplications] = useState<Application[]>([])
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
+  const [dataSource, setDataSource] = useState<string | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams()
@@ -27,8 +31,12 @@ export default function DashboardPage() {
       .then((data) => {
         setApplications(Array.isArray(data.data) ? data.data : [])
         setTotal(typeof data.total === 'number' ? data.total : data.data?.length ?? 0)
+        setDataSource(typeof data.source === 'string' ? data.source : null)
       })
-      .catch(() => setApplications([]))
+      .catch(() => {
+        setApplications([])
+        setDataSource(null)
+      })
       .finally(() => setLoading(false))
   }, [statusFilter])
 
@@ -59,7 +67,20 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">VentureHacks Admin</h1>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/logos/felicis.png"
+            alt="Felicis"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+            priority
+          />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Felicis</p>
+            <h1 className="text-xl font-semibold text-gray-900">VentureHacks Admin</h1>
+          </div>
+        </div>
         <div className="flex items-center gap-4">
           <button
             onClick={handleExport}
@@ -92,6 +113,11 @@ export default function DashboardPage() {
           </select>
           <span className="text-sm text-gray-500">{total} total</span>
         </div>
+        {dataSource === 'export-fallback' && (
+          <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            The deployed backend does not expose the admin applications API yet, so this table is being loaded from the CSV export endpoint.
+          </p>
+        )}
 
         {loading ? (
           <p className="text-gray-500">Loading applications...</p>
@@ -109,7 +135,13 @@ export default function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {applications.map((app) => (
-                  <tr key={app.id} className="hover:bg-gray-50">
+                  <tr
+                    key={app.id ?? `${app.email}-${app.created_at}`}
+                    className={app.id ? 'cursor-pointer hover:bg-gray-50' : 'hover:bg-gray-50'}
+                    onClick={() => {
+                      if (app.id) router.push(`/applications/${app.id}`)
+                    }}
+                  >
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{app.full_name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{app.email}</td>
                     <td className="px-6 py-4">
@@ -129,12 +161,17 @@ export default function DashboardPage() {
                       {app.created_at ? new Date(app.created_at).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link
-                        href={`/applications/${app.id}`}
-                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                      >
-                        View
-                      </Link>
+                      {app.id ? (
+                        <Link
+                          href={`/applications/${app.id}`}
+                          onClick={(event) => event.stopPropagation()}
+                          className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                        >
+                          View
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-gray-400">Unavailable</span>
+                      )}
                     </td>
                   </tr>
                 ))}
