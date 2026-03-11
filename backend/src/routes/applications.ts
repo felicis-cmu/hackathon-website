@@ -24,7 +24,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
   const {
     full_name, email, phone, linkedin_url, github_url,
     short_answer_1, short_answer_2, short_answer_3, short_answer_4,
-    mcq_responses, resume_url, resume_filename,
+    mcq_responses, referral_other, resume_url, resume_filename,
   } = req.body
 
   if (!full_name || !email || !linkedin_url || !github_url ||
@@ -37,7 +37,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
       user_id: req.userId,
       full_name, email, phone, linkedin_url, github_url,
       short_answer_1, short_answer_2, short_answer_3, short_answer_4,
-      mcq_responses, resume_url, resume_filename,
+      mcq_responses, referral_other, resume_url, resume_filename,
     },
     { onConflict: 'user_id' }
   )
