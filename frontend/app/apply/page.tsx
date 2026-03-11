@@ -61,7 +61,7 @@ function clearDraft(userId: string) {
 }
 
 const SHORT_ANSWERS_INTRO =
-  'Your answers will be reviewed and weighed towards participation in the hackathon and for team matching (if applicable).'
+  'Your answers will be reviewed and weighed towards participation in the hackathon and for team matching (if applicable). Please answer in 2-4 sentences.'
 
 const SHORT_QUESTIONS = [
   'Why do you want to attend VentureHacks?',
