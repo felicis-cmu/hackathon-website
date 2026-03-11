@@ -11,25 +11,41 @@ function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('[admin/login] submitting password', {
+      password,
+      length: password.length,
+      trimmed: password.trim(),
+      trimmedLength: password.trim().length,
+    })
     setLoading(true)
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
-        redirect: 'manual',
       })
-      if (res.status === 302 || res.status === 307) {
-        const location = res.headers.get('Location')
-        window.location.href = location || '/dashboard'
-        return
-      }
+      const data = await res.json().catch(() => null)
+      console.log('[admin/login] response received', {
+        status: res.status,
+        ok: res.ok,
+        redirected: res.redirected,
+        location: res.headers.get('Location'),
+        data,
+      })
       if (!res.ok) {
+        if (data?.error === 'config') {
+          console.log('[admin/login] admin password is not configured')
+          window.location.href = '/login?error=config'
+          return
+        }
+        console.log('[admin/login] non-ok response, redirecting to invalid password screen')
         window.location.href = '/login?error=1'
         return
       }
+      console.log('[admin/login] login succeeded, navigating to dashboard')
       window.location.href = '/dashboard'
-    } catch {
+    } catch (error) {
+      console.error('[admin/login] request failed', error)
       window.location.href = '/login?error=1'
     } finally {
       setLoading(false)
@@ -46,7 +62,14 @@ function LoginForm() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              const nextPassword = e.target.value
+              console.log('[admin/login] password input changed', {
+                password: nextPassword,
+                length: nextPassword.length,
+              })
+              setPassword(nextPassword)
+            }}
             placeholder="Admin password"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
             autoFocus
