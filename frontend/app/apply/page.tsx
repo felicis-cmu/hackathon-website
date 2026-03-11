@@ -365,12 +365,6 @@ export default function ApplyPage() {
         <div className="min-h-screen flex items-center justify-center px-4 relative z-10">
           <div className="max-w-md w-full text-center">
             <p className="text-gray-600 mb-6">You&apos;ve already submitted an application.</p>
-            <Link
-              href="/apply/dashboard"
-              className="inline-block px-6 py-3 rounded-2xl bg-felicis-orange text-white font-medium hover:opacity-90 transition-colors"
-            >
-              View Dashboard
-            </Link>
             <p className="mt-6 text-sm text-gray-500">
               <Link href="/" className="text-felicis-orange hover:underline">← Back to home</Link>
             </p>
