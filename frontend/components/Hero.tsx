@@ -5,17 +5,27 @@ import { Container } from './ui/Container'
 import { SwirlCanvas } from './SwirlCanvas'
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 
-const EVENT_DATE = new Date('2026-03-21T23:59:00')
+const APPLICATION_DEADLINE = new Date('2026-03-21T23:59:00-04:00')
+const HACKATHON_START = new Date('2026-03-28T11:00:00-04:00')
 
 const W = 50;   const H = 68;   const FS = 40   // desktop
 const WS = 36;  const HS = 50;  const FSS = 28  // mobile small
 
 function useCountdown() {
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+
   useEffect(() => {
     const tick = () => {
-      const diff = EVENT_DATE.getTime() - Date.now()
-      if (diff <= 0) { setT({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return }
+      const now = Date.now()
+      const countingToHackathon = now >= APPLICATION_DEADLINE.getTime()
+      const target = countingToHackathon ? HACKATHON_START : APPLICATION_DEADLINE
+      const diff = target.getTime() - now
+
+      if (diff <= 0) {
+        setT({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+        return
+      }
+
       setT({
         days:    Math.floor(diff / 86400000),
         hours:   Math.floor((diff / 3600000) % 24),
@@ -132,15 +142,17 @@ export const Hero = () => {
         <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8 sm:space-y-10">
 
           {/* Event badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-white/60 text-xs font-medium text-stone-500 tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#ED843D' }} />
-            Application due 3/21, Hackathon on 3/28
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-stone-200 bg-white/70 text-sm sm:text-base font-semibold text-stone-600 tracking-wide shadow-sm">
+            <span>Applications due March 21</span>
+            <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: '#ED843D' }} />
+            <span>Hackathon on March 28</span>
           </div>
 
           {/* Title */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-gray-900 tracking-tight font-sans leading-[0.9]">
             VentureHacks
           </h1>
+
 
           {/* Flip clock — mobile: 2×2 grid, desktop: single row */}
           <div className="sm:hidden grid grid-cols-2 gap-x-6 gap-y-4 justify-items-center">
@@ -158,6 +170,7 @@ export const Hero = () => {
             <span className="text-3xl text-stone-200 font-light pb-6 select-none">:</span>
             <FlipUnit value={seconds} label="Sec" />
           </div>
+          
 
           {/* CTA */}
           <div className="flex flex-col items-center gap-3">
