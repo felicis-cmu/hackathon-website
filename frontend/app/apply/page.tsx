@@ -169,14 +169,25 @@ export default function ApplyPage() {
   }, [form, user?.id, persistDraft])
 
   const [hasApplication, setHasApplication] = useState(false)
+  const [checkingApplication, setCheckingApplication] = useState(true)
+
   useEffect(() => {
-    if (!user || !session) return
+    if (!user || !session) {
+      setCheckingApplication(false)
+      return
+    }
+    setCheckingApplication(true)
     fetch(`${BACKEND_URL}/api/applications/status`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
       .then((r) => r.json())
-      .then(({ data }) => { if (data) setHasApplication(true) })
-      .catch(() => {})
+      .then(({ data }) => {
+        if (data) setHasApplication(true)
+        setCheckingApplication(false)
+      })
+      .catch(() => {
+        setCheckingApplication(false)
+      })
   }, [user, session])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -301,7 +312,7 @@ export default function ApplyPage() {
     }
   }
 
-  if (loading) {
+  if (loading || checkingApplication) {
     return (
       <>
         <SwirlCanvas />
