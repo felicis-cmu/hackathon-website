@@ -28,13 +28,25 @@ export function CustomSelect({
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isOpen && triggerRef.current && typeof document !== 'undefined') {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownStyle({
-        top: rect.bottom + 4,
-        left: rect.left,
-        width: rect.width,
-      })
+    const updatePosition = () => {
+      if (triggerRef.current && typeof document !== 'undefined') {
+        const rect = triggerRef.current.getBoundingClientRect()
+        setDropdownStyle({
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width,
+        })
+      }
+    }
+
+    if (isOpen) {
+      updatePosition()
+      window.addEventListener('scroll', updatePosition, true)
+      window.addEventListener('resize', updatePosition)
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true)
+        window.removeEventListener('resize', updatePosition)
+      }
     }
   }, [isOpen])
 
