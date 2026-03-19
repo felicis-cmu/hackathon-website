@@ -206,6 +206,8 @@ describe('Admin Routes', () => {
       expect(response.headers['content-type']).toBe('text/csv; charset=utf-8')
       expect(response.text).toContain('id,created_at,status,full_name,email')
       expect(response.text).toContain('John Doe')
+      expect(response.text).toContain('https://example.com/resume.pdf')
+      expect(response.text).not.toContain('john_doe_resume.pdf')
       expect(mockSupabase.from).toHaveBeenCalledWith('applications')
       expect(mockQuery.select).toHaveBeenCalledWith('*')
       expect(mockQuery.order).toHaveBeenCalledWith('created_at', { ascending: false })

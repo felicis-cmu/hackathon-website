@@ -21,6 +21,10 @@ type ApplicationRow = {
   resume_filename?: string | null
 }
 
+type ExportRow = Omit<ApplicationRow, 'resume_filename'> & {
+  resume_url: string
+}
+
 function getAdminKey(req: Request): string {
   const value = req.headers['x-admin-key']
   return Array.isArray(value) ? value[0] ?? '' : value ?? ''
@@ -161,16 +165,33 @@ router.get('/export', async (req: Request, res: Response) => {
   const { data: applications, error } = await supabase
     .from('applications')
     .select('*')
-    .order('created_at', { ascending: false })
+  const exportRows: ExportRow[] = (applications ?? []).map((row) => ({
+    id: row.id,
+    created_at: row.created_at,
+    status: row.status,
+    full_name: row.full_name,
+    email: row.email,
+    phone: row.phone ?? null,
+    linkedin_url: row.linkedin_url ?? null,
+    github_url: row.github_url ?? null,
+    short_answer_1: row.short_answer_1 ?? null,
+    short_answer_2: row.short_answer_2 ?? null,
+    short_answer_3: row.short_answer_3 ?? null,
+    short_answer_4: row.short_answer_4 ?? null,
+    mcq_responses: row.mcq_responses ?? null,
+    resume_url: row.resume_url ?? '',
+  }))
 
-  if (error) return res.status(500).json({ error: error.message })
-
-  const columns = [
+  const columns: Array<keyof ExportRow> = [
     'id', 'created_at', 'status', 'full_name', 'email', 'phone',
     'linkedin_url', 'github_url', 'short_answer_1', 'short_answer_2',
-    'short_answer_3', 'short_answer_4', 'mcq_responses', 'resume_url', 'resume_filename',
+    'short_answer_3', 'short_answer_4', 'mcq_responses', 'resume_url',
   ]
 
+  const header = columns.join(',')
+  const rows = exportRows.map((row) =>
+    columns.map((col) => escapeCsv(row[col])).join(',')
+  )
   const header = columns.join(',')
   const rows = (applications ?? []).map((row) =>
     columns.map((col) => escapeCsv(row[col as keyof typeof row])).join(',')
