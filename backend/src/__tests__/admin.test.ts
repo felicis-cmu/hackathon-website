@@ -3,6 +3,16 @@ import express from 'express'
 import adminRouter from '../routes/admin'
 import { supabase } from '../supabase'
 
+const mockResendSend = jest.fn()
+
+jest.mock('resend', () => ({
+  Resend: jest.fn().mockImplementation(() => ({
+    emails: {
+      send: mockResendSend,
+    },
+  })),
+}))
+
 const app = express()
 app.use(express.json())
 app.use('/api/admin', adminRouter)
@@ -12,6 +22,11 @@ const mockSupabase = supabase as jest.Mocked<typeof supabase>
 describe('Admin Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.restoreAllMocks()
+    mockResendSend.mockReset()
+    delete process.env.RESEND_API_KEY
+    delete process.env.RESEND_FROM_EMAIL
+    delete process.env.RESEND_FROM_NAME
   })
 
   describe('GET /api/admin/applications', () => {
@@ -107,13 +122,69 @@ describe('Admin Routes', () => {
       expect(response.body).toEqual({ error: 'Invalid status' })
     })
 
-    it('should update application status', async () => {
-      const updatedApplication = {
+    it('should fail accepted decisions when Resend is not configured', async () => {
+      const currentApplication = {
         id: 'app-1',
+        status: 'pending',
+        full_name: 'Jane Doe',
+        email: 'jane@example.com',
+      }
+
+      const fetchQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: currentApplication,
+          error: null,
+        }),
+      }
+
+      mockSupabase.from.mockReturnValue(fetchQuery as any)
+
+      const response = await request(app)
+        .patch('/api/admin/applications/app-1')
+        .set('x-admin-key', 'test-admin-secret')
+        .send({ status: 'accepted' })
+
+      expect(response.status).toBe(503)
+      expect(response.body).toEqual({
+        emailDelivery: {
+          sent: false,
+          skipped: false,
+          error: 'Resend is not configured yet.',
+        },
+        error: 'Resend is not configured yet.',
+      })
+      expect(mockResendSend).not.toHaveBeenCalled()
+    })
+
+    it('should send the acceptance email via Resend before updating status', async () => {
+      process.env.RESEND_API_KEY = 'resend-api-key'
+      process.env.RESEND_FROM_EMAIL = 'noreply@venturehacks.dev'
+      process.env.RESEND_FROM_NAME = 'VentureHacks'
+
+      const currentApplication = {
+        id: 'app-1',
+        status: 'pending',
+        full_name: 'Jane Doe',
+        email: 'jane@example.com',
+      }
+
+      const updatedApplication = {
+        ...currentApplication,
         status: 'accepted',
       }
 
-      const mockQuery = {
+      const fetchQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: currentApplication,
+          error: null,
+        }),
+      }
+
+      const updateQuery = {
         update: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
@@ -123,7 +194,14 @@ describe('Admin Routes', () => {
         }),
       }
 
-      mockSupabase.from.mockReturnValue(mockQuery as any)
+      mockResendSend.mockResolvedValue({
+        data: { id: 'resend-accepted-id' },
+        error: null,
+      })
+
+      mockSupabase.from
+        .mockReturnValueOnce(fetchQuery as any)
+        .mockReturnValueOnce(updateQuery as any)
 
       const response = await request(app)
         .patch('/api/admin/applications/app-1')
@@ -131,10 +209,187 @@ describe('Admin Routes', () => {
         .send({ status: 'accepted' })
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(updatedApplication)
-      expect(mockQuery.update).toHaveBeenCalledWith({ status: 'accepted' })
-      expect(mockQuery.eq).toHaveBeenCalledWith('id', 'app-1')
-      expect(mockQuery.select).toHaveBeenCalledWith('*')
+      expect(response.body).toEqual({
+        ...updatedApplication,
+        emailDelivery: {
+          sent: true,
+          skipped: false,
+          messageId: 'resend-accepted-id',
+        },
+      })
+      expect(mockResendSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: 'VentureHacks <noreply@venturehacks.dev>',
+          to: 'jane@example.com',
+          subject: 'You\'re accepted to VentureHacks',
+        })
+      )
+      expect(updateQuery.update).toHaveBeenCalledWith({ status: 'accepted' })
+    })
+
+    it('should send the rejection email via Resend before updating status', async () => {
+      process.env.RESEND_API_KEY = 'resend-api-key'
+      process.env.RESEND_FROM_EMAIL = 'noreply@venturehacks.dev'
+
+      const currentApplication = {
+        id: 'app-1',
+        status: 'pending',
+        full_name: 'Jane Doe',
+        email: 'jane@example.com',
+      }
+
+      const updatedApplication = {
+        ...currentApplication,
+        status: 'rejected',
+      }
+
+      const fetchQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: currentApplication,
+          error: null,
+        }),
+      }
+
+      const updateQuery = {
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: updatedApplication,
+          error: null,
+        }),
+      }
+
+      mockResendSend.mockResolvedValue({
+        data: { id: 'resend-rejected-id' },
+        error: null,
+      })
+
+      mockSupabase.from
+        .mockReturnValueOnce(fetchQuery as any)
+        .mockReturnValueOnce(updateQuery as any)
+
+      const response = await request(app)
+        .patch('/api/admin/applications/app-1')
+        .set('x-admin-key', 'test-admin-secret')
+        .send({ status: 'rejected' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        ...updatedApplication,
+        emailDelivery: {
+          sent: true,
+          skipped: false,
+          messageId: 'resend-rejected-id',
+        },
+      })
+      expect(mockResendSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: 'VentureHacks <noreply@venturehacks.dev>',
+          to: 'jane@example.com',
+          subject: 'Your VentureHacks application',
+        })
+      )
+      expect(updateQuery.update).toHaveBeenCalledWith({ status: 'rejected' })
+    })
+
+    it('should fail without updating status when Resend send fails', async () => {
+      process.env.RESEND_API_KEY = 'resend-api-key'
+      process.env.RESEND_FROM_EMAIL = 'noreply@venturehacks.dev'
+
+      const currentApplication = {
+        id: 'app-1',
+        status: 'pending',
+        full_name: 'Jane Doe',
+        email: 'jane@example.com',
+      }
+
+      const fetchQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: currentApplication,
+          error: null,
+        }),
+      }
+
+      mockResendSend.mockResolvedValue({
+        data: null,
+        error: { message: 'Resend outage' },
+      })
+
+      mockSupabase.from.mockReturnValue(fetchQuery as any)
+
+      const response = await request(app)
+        .patch('/api/admin/applications/app-1')
+        .set('x-admin-key', 'test-admin-secret')
+        .send({ status: 'accepted' })
+
+      expect(response.status).toBe(502)
+      expect(response.body).toEqual({
+        emailDelivery: {
+          sent: false,
+          skipped: false,
+          error: 'Resend outage',
+        },
+        error: 'Resend outage',
+      })
+    })
+
+    it('should update pending status without calling Resend', async () => {
+      const currentApplication = {
+        id: 'app-1',
+        status: 'accepted',
+        full_name: 'Jane Doe',
+        email: 'jane@example.com',
+      }
+
+      const updatedApplication = {
+        ...currentApplication,
+        status: 'pending',
+      }
+
+      const fetchQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: currentApplication,
+          error: null,
+        }),
+      }
+
+      const updateQuery = {
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: updatedApplication,
+          error: null,
+        }),
+      }
+
+      mockSupabase.from
+        .mockReturnValueOnce(fetchQuery as any)
+        .mockReturnValueOnce(updateQuery as any)
+
+      const response = await request(app)
+        .patch('/api/admin/applications/app-1')
+        .set('x-admin-key', 'test-admin-secret')
+        .send({ status: 'pending' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        ...updatedApplication,
+        emailDelivery: {
+          sent: false,
+          skipped: true,
+          reason: 'Pending applications do not send a decision email.',
+        },
+      })
+      expect(mockResendSend).not.toHaveBeenCalled()
+      expect(updateQuery.update).toHaveBeenCalledWith({ status: 'pending' })
     })
   })
 

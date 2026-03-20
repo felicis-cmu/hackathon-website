@@ -248,14 +248,24 @@ describe('Applications Routes', () => {
       };
       mockCreateClient.mockReturnValue(mockAuthSupabase as any);
 
-      // Mock database upsert
-      const mockQuery = {
-        upsert: jest.fn().mockResolvedValue({
+      const mockCheckQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: null,
+          error: { code: 'PGRST116', message: 'Not found' },
+        }),
+      };
+
+      const mockInsertQuery = {
+        insert: jest.fn().mockResolvedValue({
           data: null,
           error: null,
         }),
       };
-      mockSupabase.from.mockReturnValue(mockQuery as any);
+      mockSupabase.from
+        .mockReturnValueOnce(mockCheckQuery as any)
+        .mockReturnValueOnce(mockInsertQuery as any);
 
       const response = await request(app)
         .post('/api/applications')
@@ -266,13 +276,12 @@ describe('Applications Routes', () => {
       expect(response.body).toEqual({ success: true });
 
       expect(mockSupabase.from).toHaveBeenCalledWith('applications');
-      expect(mockQuery.upsert).toHaveBeenCalledWith(
-        {
-          user_id: userId,
-          ...validApplicationData,
-        },
-        { onConflict: 'user_id' }
-      );
+      expect(mockCheckQuery.select).toHaveBeenCalledWith('id');
+      expect(mockCheckQuery.eq).toHaveBeenCalledWith('user_id', userId);
+      expect(mockInsertQuery.insert).toHaveBeenCalledWith({
+        user_id: userId,
+        ...validApplicationData,
+      });
     });
 
     it('should allow authenticated user to update existing application', async () => {
@@ -294,14 +303,25 @@ describe('Applications Routes', () => {
       };
       mockCreateClient.mockReturnValue(mockAuthSupabase as any);
 
-      // Mock database upsert (update existing)
-      const mockQuery = {
-        upsert: jest.fn().mockResolvedValue({
+      const mockCheckQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: { id: 'existing-app-id' },
+          error: null,
+        }),
+      };
+
+      const mockUpdateQuery = {
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockResolvedValue({
           data: null,
           error: null,
         }),
       };
-      mockSupabase.from.mockReturnValue(mockQuery as any);
+      mockSupabase.from
+        .mockReturnValueOnce(mockCheckQuery as any)
+        .mockReturnValueOnce(mockUpdateQuery as any);
 
       const response = await request(app)
         .post('/api/applications')
@@ -312,13 +332,12 @@ describe('Applications Routes', () => {
       expect(response.body).toEqual({ success: true });
 
       expect(mockSupabase.from).toHaveBeenCalledWith('applications');
-      expect(mockQuery.upsert).toHaveBeenCalledWith(
-        {
-          user_id: userId,
-          ...updatedData,
-        },
-        { onConflict: 'user_id' }
-      );
+      expect(mockCheckQuery.select).toHaveBeenCalledWith('id');
+      expect(mockUpdateQuery.update).toHaveBeenCalledWith({
+        user_id: userId,
+        ...updatedData,
+      });
+      expect(mockUpdateQuery.eq).toHaveBeenCalledWith('user_id', userId);
     });
 
     it('should handle database errors gracefully', async () => {
@@ -335,14 +354,15 @@ describe('Applications Routes', () => {
       };
       mockCreateClient.mockReturnValue(mockAuthSupabase as any);
 
-      // Mock database error
-      const mockQuery = {
-        upsert: jest.fn().mockResolvedValue({
+      const mockCheckQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
           data: null,
           error: { message: 'Database constraint violation' },
         }),
       };
-      mockSupabase.from.mockReturnValue(mockQuery as any);
+      mockSupabase.from.mockReturnValue(mockCheckQuery as any);
 
       const response = await request(app)
         .post('/api/applications')

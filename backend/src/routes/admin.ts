@@ -1,12 +1,15 @@
 import { Router, Request, Response } from 'express'
 import { supabase } from '../supabase'
+import { sendApplicationDecisionEmail } from '../lib/email'
 
 const router = Router()
+
+type ApplicationStatus = 'pending' | 'accepted' | 'rejected'
 
 type ApplicationRow = {
   id: string
   created_at: string
-  status: string
+  status: ApplicationStatus
   full_name: string
   email: string
   phone?: string | null
@@ -31,7 +34,7 @@ function getAdminKey(req: Request): string {
 }
 
 function isAuthorized(req: Request): boolean {
-  const expectedKey = process.env.ADMIN_SECRET
+  const expectedKey = process.env.BACKEND_ADMIN_SECRET
   return Boolean(expectedKey) && getAdminKey(req) === expectedKey
 }
 
@@ -119,19 +122,71 @@ router.patch('/applications/:id', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid status' })
   }
 
-  const { data, error } = await supabase
+  const { data: existingApplication, error: existingApplicationError } = await supabase
+    .from('applications')
+    .select('*')
+    .eq('id', req.params.id)
+    .single()
+
+  if (existingApplicationError?.code === 'PGRST116') {
+    return res.status(404).json({ error: 'Application not found' })
+  }
+  if (existingApplicationError) {
+    return res.status(500).json({ error: existingApplicationError.message })
+  }
+
+  const currentApplication = existingApplication as ApplicationRow
+  if (status !== 'pending') {
+    const emailDelivery = await sendApplicationDecisionEmail(currentApplication, status as ApplicationStatus)
+
+    if (!emailDelivery.sent) {
+      const errorMessage = emailDelivery.error || 'Failed to send decision email'
+      const statusCode = errorMessage === 'Resend is not configured yet.' ? 503 : 502
+
+      return res.status(statusCode).json({
+        error: errorMessage,
+        emailDelivery,
+      })
+    }
+
+    const { data: updatedApplication, error: updateError } = await supabase
+      .from('applications')
+      .update({ status })
+      .eq('id', req.params.id)
+      .select('*')
+      .single()
+
+    if (updateError?.code === 'PGRST116') {
+      return res.status(404).json({ error: 'Application not found' })
+    }
+    if (updateError) return res.status(500).json({ error: updateError.message })
+
+    return res.json({
+      ...(updatedApplication as ApplicationRow),
+      emailDelivery,
+    })
+  }
+
+  const { data: updatedApplication, error: updateError } = await supabase
     .from('applications')
     .update({ status })
     .eq('id', req.params.id)
     .select('*')
     .single()
 
-  if (error?.code === 'PGRST116') {
+  if (updateError?.code === 'PGRST116') {
     return res.status(404).json({ error: 'Application not found' })
   }
-  if (error) return res.status(500).json({ error: error.message })
+  if (updateError) return res.status(500).json({ error: updateError.message })
 
-  return res.json(data as ApplicationRow)
+  return res.json({
+    ...(updatedApplication as ApplicationRow),
+    emailDelivery: {
+      sent: false,
+      skipped: true,
+      reason: 'Pending applications do not send a decision email.',
+    },
+  })
 })
 
 // GET /api/admin/applications/:id/resume — fetch resume metadata for in-app viewing
@@ -165,6 +220,10 @@ router.get('/export', async (req: Request, res: Response) => {
   const { data: applications, error } = await supabase
     .from('applications')
     .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) return res.status(500).json({ error: error.message })
+
   const exportRows: ExportRow[] = (applications ?? []).map((row) => ({
     id: row.id,
     created_at: row.created_at,
@@ -179,6 +238,7 @@ router.get('/export', async (req: Request, res: Response) => {
     short_answer_3: row.short_answer_3 ?? null,
     short_answer_4: row.short_answer_4 ?? null,
     mcq_responses: row.mcq_responses ?? null,
+    // Export the actual storage URL so admins can open resumes directly from the CSV.
     resume_url: row.resume_url ?? '',
   }))
 
@@ -191,10 +251,6 @@ router.get('/export', async (req: Request, res: Response) => {
   const header = columns.join(',')
   const rows = exportRows.map((row) =>
     columns.map((col) => escapeCsv(row[col])).join(',')
-  )
-  const header = columns.join(',')
-  const rows = (applications ?? []).map((row) =>
-    columns.map((col) => escapeCsv(row[col as keyof typeof row])).join(',')
   )
   const csv = [header, ...rows].join('\n')
   const date = new Date().toISOString().slice(0, 10)

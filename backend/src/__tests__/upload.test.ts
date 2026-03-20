@@ -122,7 +122,7 @@ describe('Upload Routes', () => {
       });
 
       expect(mockSupabase.storage.from).toHaveBeenCalledWith('resumes');
-      expect(mockStorageBucket.createSignedUploadUrl).toHaveBeenCalledWith(expectedPath);
+      expect(mockStorageBucket.createSignedUploadUrl).toHaveBeenCalledWith(expectedPath, { upsert: true });
       expect(mockStorageBucket.getPublicUrl).toHaveBeenCalledWith(expectedPath);
     });
 
@@ -164,7 +164,7 @@ describe('Upload Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.path).toBe(expectedPath);
-      expect(mockStorageBucket.createSignedUploadUrl).toHaveBeenCalledWith(expectedPath);
+      expect(mockStorageBucket.createSignedUploadUrl).toHaveBeenCalledWith(expectedPath, { upsert: true });
       expect(mockStorageBucket.getPublicUrl).toHaveBeenCalledWith(expectedPath);
     });
 

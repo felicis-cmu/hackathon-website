@@ -22,12 +22,24 @@ type Application = {
   created_at: string
 }
 
+type EmailDelivery = {
+  sent: boolean
+  skipped: boolean
+  reason?: string
+  error?: string
+}
+
+type ApplicationUpdateSuccess = Application & {
+  emailDelivery?: EmailDelivery
+}
+
 export default function ApplicationDetailPage() {
   const params = useParams()
   const id = params.id as string
   const [app, setApp] = useState<Application | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [updateMessage, setUpdateMessage] = useState<string | null>(null)
   const [resumeUrl, setResumeUrl] = useState<string | null>(null)
   const [resumeFilename, setResumeFilename] = useState<string | null>(null)
   const [resumeLoading, setResumeLoading] = useState(true)
@@ -70,14 +82,35 @@ export default function ApplicationDetailPage() {
 
   const updateStatus = async (status: 'accepted' | 'rejected') => {
     setUpdating(true)
+    setUpdateMessage(null)
     try {
       const res = await fetch(`/api/proxy/applications/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       })
-      if (res.ok && app) setApp({ ...app, status })
-      else alert('Update failed')
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        const message = typeof data?.error === 'string' ? data.error : 'Update failed'
+        alert(message)
+        return
+      }
+
+      const application = data as ApplicationUpdateSuccess | null
+      if (application) {
+        setApp(application)
+
+        if (application.emailDelivery?.sent) {
+          setUpdateMessage(`Status updated and the ${status} decision email was sent to ${application.email}.`)
+        } else if (application.emailDelivery?.error) {
+          setUpdateMessage(`Status updated, but the ${status} decision email was not sent: ${application.emailDelivery.error}`)
+        } else if (application.emailDelivery?.reason) {
+          setUpdateMessage(`Status updated. Decision email not sent: ${application.emailDelivery.reason}`)
+        } else {
+          setUpdateMessage('Status updated.')
+        }
+      }
     } catch {
       alert('Update failed')
     } finally {
@@ -228,6 +261,10 @@ export default function ApplicationDetailPage() {
                 </button>
               )}
             </div>
+
+            {updateMessage && (
+              <p className="text-sm text-gray-600">{updateMessage}</p>
+            )}
           </div>
         </div>
 

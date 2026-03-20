@@ -10,6 +10,7 @@ A modern, responsive website for VentureHack on March 14, built with Next.js 14,
 - **Responsive**: Mobile-first design that works on all devices
 - **Apply Flow**: OAuth sign-in (Google) + application form with short answers, MCQs, resume upload
 - **Admin Export**: Download all applications as CSV at `/admin` for review in Sheets or Excel
+- **Decision Emails**: Admin accept/reject actions can send Resend-based decision emails to applicants
 - **Supabase**: Auth, database, and storage configured
 
 ## Tech Stack
@@ -43,7 +44,11 @@ cp .env.local.example .env.local
 Edit `.env.local` with:
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Supabase Dashboard → Settings → API
 - `SUPABASE_SERVICE_ROLE_KEY` (for admin export)
-- `ADMIN_SECRET` (password for `/admin` CSV download)
+- `BACKEND_ADMIN_SECRET` (shared secret for admin-to-backend API requests)
+- `ADMIN_SESSION_SECRET` (signing secret for admin session cookies)
+- `ADMIN_PASSWORD` (password for admin login)
+- `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (for acceptance/rejection emails from the admin dashboard)
+- Optional: `RESEND_FROM_NAME` (defaults to `VentureHacks`)
 
 Enable OAuth in Supabase → Authentication → Providers (Google). Add redirect URL: `http://localhost:3000/auth/callback`
 
