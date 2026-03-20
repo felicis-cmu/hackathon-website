@@ -12,6 +12,8 @@ type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | null
 export default function DashboardPage() {
   const { user, session, loading: authLoading } = useAuth()
   const [status, setStatus] = useState<ApplicationStatus>(null)
+  const [confirmed, setConfirmed] = useState(false)
+  const [confirming, setConfirming] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,10 +24,27 @@ export default function DashboardPage() {
       .then((r) => r.json())
       .then(({ data }) => {
         setStatus(data ? ((data.status as ApplicationStatus) ?? 'pending') : null)
+        setConfirmed(data?.confirmed ?? false)
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }, [user?.id, session])
+
+  const handleConfirm = async () => {
+    if (!session || confirming) return
+    setConfirming(true)
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/applications/confirm`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        setConfirmed(true)
+      }
+    } finally {
+      setConfirming(false)
+    }
+  }
 
   if (authLoading || (user && loading)) {
     return (
@@ -136,15 +155,15 @@ export default function DashboardPage() {
             <ul className="space-y-4 text-gray-700">
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>
-                <span><strong>Arrival:</strong> Arrive at Tepper by 10:30 AM on March 28</span>
+                <span><strong>Arrival:</strong> Arrive at Tepper by 10:45 AM on March 28</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>
-                <span><strong>Location:</strong> Carnegie Mellon University, Tepper School of Business</span>
+                <span><strong>Location:</strong> Carnegie Mellon University, Doherty 2315</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>
-                <span><strong>Check-in:</strong> Bring a valid ID. Doors open at 12:45 PM.</span>
+                <span><strong>Check-in:</strong> Just bring yourself.</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>
@@ -152,9 +171,39 @@ export default function DashboardPage() {
               </li>
               <li className="flex gap-3">
                 <span className="text-felicis-orange font-medium shrink-0">•</span>
-                <span><strong>Questions?</strong> Reach out to the Felicis team.</span>
+                <span><strong>Questions?</strong> Reach out to dichung@andrew.cmu.edu or aarusha@andrew.cmu.edu</span>
               </li>
             </ul>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-felicis-border bg-white/90 backdrop-blur-sm p-6 sm:p-8">
+            {confirmed ? (
+              <div className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="font-semibold text-gray-900">Attendance Confirmed</p>
+                  <p className="text-sm text-gray-500">We&apos;ll see you on March 28!</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-gray-900">Confirm Your Attendance</h3>
+                  <p className="text-sm text-gray-600 mt-1">Please confirm that you&apos;ll be attending the hackathon so we can plan accordingly.</p>
+                </div>
+                <button
+                  onClick={handleConfirm}
+                  disabled={confirming}
+                  className="px-6 py-3 rounded-2xl bg-felicis-orange text-white font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {confirming ? 'Confirming...' : 'Confirm Attendance'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

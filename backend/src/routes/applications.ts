@@ -8,7 +8,7 @@ const router = Router()
 router.get('/status', requireAuth, async (req: AuthRequest, res: Response) => {
   const { data, error } = await supabase
     .from('applications')
-    .select('id, status')
+    .select('id, status, confirmed')
     .eq('user_id', req.userId)
     .single()
 
@@ -17,6 +17,36 @@ router.get('/status', requireAuth, async (req: AuthRequest, res: Response) => {
   }
 
   return res.json({ data: data ?? null })
+})
+
+// POST /api/applications/confirm — accepted applicant confirms attendance
+router.post('/confirm', requireAuth, async (req: AuthRequest, res: Response) => {
+  const { data: app, error: fetchError } = await supabase
+    .from('applications')
+    .select('id, status, confirmed')
+    .eq('user_id', req.userId)
+    .single()
+
+  if (fetchError) {
+    return res.status(500).json({ error: fetchError.message })
+  }
+  if (!app || app.status !== 'accepted') {
+    return res.status(403).json({ error: 'Only accepted applicants can confirm' })
+  }
+  if (app.confirmed) {
+    return res.json({ success: true, already: true })
+  }
+
+  const { error: updateError } = await supabase
+    .from('applications')
+    .update({ confirmed: true })
+    .eq('id', app.id)
+
+  if (updateError) {
+    return res.status(500).json({ error: updateError.message })
+  }
+
+  return res.json({ success: true })
 })
 
 // POST /api/applications — submit or update application
