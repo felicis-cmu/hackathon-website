@@ -34,7 +34,7 @@ function getAdminKey(req: Request): string {
 }
 
 function isAuthorized(req: Request): boolean {
-  const expectedKey = process.env.BACKEND_ADMIN_SECRET
+  const expectedKey = process.env.ADMIN_SECRET
   return Boolean(expectedKey) && getAdminKey(req) === expectedKey
 }
 

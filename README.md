@@ -44,9 +44,8 @@ cp .env.local.example .env.local
 Edit `.env.local` with:
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Supabase Dashboard → Settings → API
 - `SUPABASE_SERVICE_ROLE_KEY` (for admin export)
-- `BACKEND_ADMIN_SECRET` (shared secret for admin-to-backend API requests)
-- `ADMIN_SESSION_SECRET` (signing secret for admin session cookies)
 - `ADMIN_PASSWORD` (password for admin login)
+- `ADMIN_SECRET` (used for admin session signing and admin-to-backend API requests)
 - `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (for acceptance/rejection emails from the admin dashboard)
 - Optional: `RESEND_FROM_NAME` (defaults to `VentureHacks`)
 

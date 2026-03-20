@@ -5,8 +5,8 @@ const COOKIE_NAME = 'admin_session'
 const EXPIRY_HOURS = 12
 
 function getSecret(): string {
-  const secret = process.env.ADMIN_SECRET || process.env.ADMIN_SESSION_SECRET
-  if (!secret) throw new Error('ADMIN_SECRET or ADMIN_SESSION_SECRET required')
+  const secret = process.env.ADMIN_SECRET
+  if (!secret) throw new Error('ADMIN_SECRET required')
   return secret
 }
 
