@@ -16,10 +16,221 @@ type Application = {
   short_answer_3?: string
   short_answer_4?: string
   mcq_responses?: unknown
+  referral_other?: string | null
   resume_url?: string
   resume_filename?: string
   status: string
   created_at: string
+}
+
+/** Labels and option lists match `frontend/app/apply/page.tsx` MCQ_QUESTIONS */
+const MCQ_SECTIONS: { id: string; title: string; options: string[] }[] = [
+  {
+    id: 'experience',
+    title: 'What is your hackathon experience level?',
+    options: ['First time', '1-2 hackathons', '3-5 hackathons', '6+ hackathons'],
+  },
+  {
+    id: 'team',
+    title: 'Do you have a team, or are you looking for one?',
+    options: ['I have a team', 'Looking for a team', 'Solo participant'],
+  },
+  {
+    id: 'focus',
+    title: 'What area interests you most?',
+    options: ['AI/ML', 'Web3', 'DevTools', 'Consumer apps', 'Other'],
+  },
+  {
+    id: 'referral',
+    title: 'How did you hear about VentureHacks?',
+    options: ['ScottyLabs', 'LinkedIn', 'IS Advisor', 'CS Advisor', 'SEP', 'Friend', 'Other'],
+  },
+]
+
+const MCQ_KNOWN_IDS = new Set(MCQ_SECTIONS.map((s) => s.id))
+const MCQ_OPTIONS_BY_ID = Object.fromEntries(MCQ_SECTIONS.map((s) => [s.id, s.options])) as Record<
+  string,
+  string[]
+>
+
+/** Unwrap JSON blobs, nested { value }, arrays, and numeric indices into a display string. */
+function unwrapMcqRaw(raw: unknown, depth = 0): string {
+  if (raw === null || raw === undefined) return ''
+  if (depth > 8) return ''
+
+  if (typeof raw === 'string') {
+    const t = raw.trim()
+    if (t === '') return ''
+    if (
+      (t.startsWith('{') && t.endsWith('}')) ||
+      (t.startsWith('[') && t.endsWith(']'))
+    ) {
+      try {
+        return unwrapMcqRaw(JSON.parse(t), depth + 1)
+      } catch {
+        return t
+      }
+    }
+    return t
+  }
+
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    return String(raw)
+  }
+  if (typeof raw === 'boolean') {
+    return raw ? 'Yes' : 'No'
+  }
+
+  if (Array.isArray(raw)) {
+    return raw
+      .map((x) => unwrapMcqRaw(x, depth + 1))
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  if (typeof raw === 'object') {
+    const o = raw as Record<string, unknown>
+    if (Object.keys(o).length === 0) return ''
+    const picked =
+      o.answer ??
+      o.value ??
+      o.label ??
+      o.text ??
+      o.selected ??
+      o.choice ??
+      o.option ??
+      (typeof o.id === 'string' || typeof o.id === 'number' ? o.id : undefined)
+    if (picked !== undefined) return unwrapMcqRaw(picked, depth + 1)
+    try {
+      return JSON.stringify(raw)
+    } catch {
+      return String(raw)
+    }
+  }
+
+  return String(raw)
+}
+
+/** Map unwrapped text to a canonical option label when possible. */
+function resolveToOptionLabel(questionId: string, unwrapped: string): string {
+  const options = MCQ_OPTIONS_BY_ID[questionId]
+  if (!options?.length || !unwrapped) return unwrapped
+
+  if (options.includes(unwrapped)) return unwrapped
+
+  const lower = unwrapped.toLowerCase()
+  const byLower = options.find((o) => o.toLowerCase() === lower)
+  if (byLower) return byLower
+
+  if (/^\d+$/.test(unwrapped)) {
+    const idx = parseInt(unwrapped, 10)
+    if (idx >= 0 && idx < options.length) return options[idx]
+  }
+
+  const compact = unwrapped.replace(/\s+/g, '')
+  const byCompact = options.find((o) => o.replace(/\s+/g, '').toLowerCase() === compact.toLowerCase())
+  if (byCompact) return byCompact
+
+  return unwrapped
+}
+
+function parseMcqAnswer(questionId: string, raw: unknown): string {
+  const options = MCQ_OPTIONS_BY_ID[questionId]
+
+  if (typeof raw === 'number' && Number.isInteger(raw) && options && raw >= 0 && raw < options.length) {
+    return options[raw]
+  }
+
+  const unwrapped = unwrapMcqRaw(raw)
+  if (!unwrapped) return '—'
+
+  return resolveToOptionLabel(questionId, unwrapped)
+}
+
+function parseMcqResponsesRoot(raw: unknown): Record<string, unknown> | null {
+  if (raw === null || raw === undefined) return null
+  if (typeof raw === 'string') {
+    const t = raw.trim()
+    if (!t) return null
+    try {
+      const p = JSON.parse(t) as unknown
+      if (typeof p === 'object' && p !== null && !Array.isArray(p)) return p as Record<string, unknown>
+    } catch {
+      return null
+    }
+    return null
+  }
+  if (typeof raw === 'object' && !Array.isArray(raw)) return raw as Record<string, unknown>
+  return null
+}
+
+function formatUnknownMcqValue(raw: unknown): string {
+  const u = unwrapMcqRaw(raw)
+  return u || '—'
+}
+
+function McqResponsesBlock({
+  value,
+  referralOther,
+}: {
+  value: unknown
+  referralOther?: string | null
+}) {
+  if (value === null || value === undefined) return null
+
+  const obj = parseMcqResponsesRoot(value)
+  if (!obj) {
+    return (
+      <p className="text-gray-900 mt-1 whitespace-pre-wrap">{formatUnknownMcqValue(value)}</p>
+    )
+  }
+
+  const unknownKeys = Object.keys(obj).filter((k) => !MCQ_KNOWN_IDS.has(k))
+  const hasKnown = MCQ_SECTIONS.some(({ id }) => {
+    const v = obj[id]
+    if (v == null || v === '') return false
+    return parseMcqAnswer(id, v) !== '—'
+  })
+  const hasContent = hasKnown || unknownKeys.length > 0
+
+  if (!hasContent) {
+    return <p className="text-sm text-gray-500 mt-1">No responses recorded.</p>
+  }
+
+  return (
+    <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50/80 overflow-hidden">
+      <ul className="divide-y divide-gray-200">
+        {MCQ_SECTIONS.map(({ id, title }) => {
+          const raw = obj[id]
+          if (raw == null || raw === '') return null
+          const text = parseMcqAnswer(id, raw)
+          if (text === '—') return null
+          const isReferralOther =
+            id === 'referral' &&
+            text.toLowerCase() === 'other' &&
+            Boolean(referralOther?.trim())
+          return (
+            <li key={id} className="px-4 py-3">
+              <p className="text-xs font-medium text-gray-500 leading-snug">{title}</p>
+              <p className="text-sm text-gray-900 mt-1.5 font-medium">{text}</p>
+              {isReferralOther && (
+                <p className="text-sm text-gray-700 mt-2 pl-3 border-l-2 border-indigo-200">
+                  <span className="text-gray-500 font-normal">Specified: </span>
+                  {(referralOther ?? '').trim()}
+                </p>
+              )}
+            </li>
+          )
+        })}
+        {unknownKeys.map((key) => (
+          <li key={key} className="px-4 py-3 bg-white/60">
+            <p className="text-xs font-medium text-gray-500">{key}</p>
+            <p className="text-sm text-gray-900 mt-1.5 whitespace-pre-wrap">{formatUnknownMcqValue(obj[key])}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 type EmailDelivery = {
@@ -226,9 +437,7 @@ export default function ApplicationDetailPage() {
             {app.mcq_responses != null && (
               <div>
                 <span className="text-xs font-medium text-gray-500 uppercase">MCQ responses</span>
-                <pre className="mt-1 text-sm text-gray-700 bg-gray-50 p-3 rounded overflow-auto">
-                  {JSON.stringify(app.mcq_responses, null, 2)}
-                </pre>
+                <McqResponsesBlock value={app.mcq_responses} referralOther={app.referral_other} />
               </div>
             )}
 
