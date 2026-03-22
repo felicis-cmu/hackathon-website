@@ -72,7 +72,7 @@ router.get('/applications', async (req: Request, res: Response) => {
   if (!requireAdmin(req, res)) return
 
   const status = typeof req.query.status === 'string' ? req.query.status.trim() : ''
-  const limit = Math.min(parsePositiveInt(req.query.limit, 100), 500)
+  const limit = Math.min(parsePositiveInt(req.query.limit, 100), 10000)
   const offset = parseNonNegativeInt(req.query.offset, 0)
 
   let query = supabase

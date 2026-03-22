@@ -25,7 +25,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const params = new URLSearchParams()
     if (statusFilter) params.set('status', statusFilter)
-    params.set('limit', '100')
+    // Show every row when viewing all statuses; keep a page cap when filtering
+    params.set('limit', statusFilter ? '100' : '10000')
     fetch(`/api/proxy/applications?${params}`)
       .then((r) => r.json())
       .then((data) => {
