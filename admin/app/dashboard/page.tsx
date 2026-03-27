@@ -44,7 +44,9 @@ export default function DashboardPage() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const res = await fetch('/api/proxy/export')
+      const exportParams = new URLSearchParams()
+      if (statusFilter) exportParams.set('status', statusFilter)
+      const res = await fetch(`/api/proxy/export?${exportParams}`)
       if (!res.ok) throw new Error('Export failed')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)

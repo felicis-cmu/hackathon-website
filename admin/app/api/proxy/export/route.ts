@@ -6,7 +6,10 @@ export async function GET(request: NextRequest) {
   const ok = await getAdminSession()
   if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const res = await fetch(`${getBackendUrl()}/api/admin/export`, {
+  const status = request.nextUrl.searchParams.get('status')
+  const exportUrl = new URL(`${getBackendUrl()}/api/admin/export`)
+  if (status) exportUrl.searchParams.set('status', status)
+  const res = await fetch(exportUrl.toString(), {
     headers: getAdminHeaders(),
   })
   if (!res.ok) {

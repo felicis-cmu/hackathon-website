@@ -217,10 +217,13 @@ router.get('/applications/:id/resume', async (req: Request, res: Response) => {
 router.get('/export', async (req: Request, res: Response) => {
   if (!requireAdmin(req, res)) return
 
-  const { data: applications, error } = await supabase
+  const status = req.query.status as string | undefined
+  let query = supabase
     .from('applications')
     .select('*')
     .order('created_at', { ascending: false })
+  if (status) query = query.eq('status', status)
+  const { data: applications, error } = await query
 
   if (error) return res.status(500).json({ error: error.message })
 
