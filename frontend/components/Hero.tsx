@@ -5,30 +5,62 @@ import { Container } from './ui/Container'
 import { SwirlCanvas } from './SwirlCanvas'
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 
-const APPLICATION_DEADLINE = new Date('2026-03-21T23:59:00-04:00')
-const HACKATHON_START = new Date('2026-03-28T11:00:00-04:00')
+/** Eastern (EDT, -04:00) — March 28, 2026 */
+const HACKING_END = new Date('2026-03-28T18:30:00-04:00')
+const JUDGING_END = new Date('2026-03-28T19:30:00-04:00')
+const AWARDS_END = new Date('2026-03-28T20:30:00-04:00')
+
+type CountdownPhase = 'hacking' | 'judging' | 'awards' | 'done'
+
+const PHASE_TITLE: Record<CountdownPhase, string> = {
+  hacking: 'Hacking',
+  judging: 'Judging',
+  awards: 'Awards',
+  done: 'Thanks',
+}
 
 const W = 50;   const H = 68;   const FS = 40   // desktop
 const WS = 36;  const HS = 50;  const FSS = 28  // mobile small
 
 function useCountdown() {
-  const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [t, setT] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    phase: 'hacking' as CountdownPhase,
+  })
 
   useEffect(() => {
     const tick = () => {
       const now = Date.now()
-      const countingToHackathon = now >= APPLICATION_DEADLINE.getTime()
-      const target = countingToHackathon ? HACKATHON_START : APPLICATION_DEADLINE
-      const diff = target.getTime() - now
+      let target: Date
+      let phase: CountdownPhase
 
+      if (now < HACKING_END.getTime()) {
+        phase = 'hacking'
+        target = HACKING_END
+      } else if (now < JUDGING_END.getTime()) {
+        phase = 'judging'
+        target = JUDGING_END
+      } else if (now < AWARDS_END.getTime()) {
+        phase = 'awards'
+        target = AWARDS_END
+      } else {
+        setT({ days: 0, hours: 0, minutes: 0, seconds: 0, phase: 'done' })
+        return
+      }
+
+      const diff = target.getTime() - now
       if (diff <= 0) {
-        setT({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+        setT({ days: 0, hours: 0, minutes: 0, seconds: 0, phase })
         return
       }
 
       setT({
-        days:    Math.floor(diff / 86400000),
-        hours:   Math.floor((diff / 3600000) % 24),
+        phase,
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff / 3600000) % 24),
         minutes: Math.floor((diff / 60000) % 60),
         seconds: Math.floor((diff / 1000) % 60),
       })
@@ -133,7 +165,7 @@ function FlipUnit({ value, label, small }: { value: number; label: string; small
 }
 
 export const Hero = () => {
-  const { days, hours, minutes, seconds } = useCountdown()
+  const { days, hours, minutes, seconds, phase } = useCountdown()
 
   return (
     <section className="min-h-screen flex items-center justify-center -mt-20 relative overflow-hidden">
@@ -150,7 +182,7 @@ export const Hero = () => {
 
           {/* Title */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-gray-900 tracking-tight font-sans leading-[0.9]">
-            VentureHacks
+            {PHASE_TITLE[phase]}
           </h1>
 
 
